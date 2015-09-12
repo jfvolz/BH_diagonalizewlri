@@ -1,4 +1,4 @@
-#a JULIA program to create the hilbert space of the Bose Hubbard model
+#a JULIA program to create the full hilbert space of the Bose Hubbard model
 # H = -J \sum_<ij> (b+ib-j + b-ib+j) + U/2 \sum_i n_i(n_i-1)
 
 #Number of particles
