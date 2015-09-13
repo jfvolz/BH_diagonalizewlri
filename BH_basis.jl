@@ -1,5 +1,5 @@
 #a JULIA program to create the full hilbert space of the Bose Hubbard model
-# H = -J \sum_<ij> (b+ib-j + b-ib+j) + U/2 \sum_i n_i(n_i-1)
+# H = -T \sum_<ij> (b+ib-j + b-ib+j) + U/2 \sum_i n_i(n_i-1)
 
 #Number of particles
 N = 4 
@@ -7,7 +7,7 @@ N = 4
 M = 4 
 
 #Hamiltonian parameters
-J = -1.0
+T = -1.0
 U = 1.0
 
 #Hilbert Space Dimension
@@ -59,4 +59,4 @@ if D != i
 	println("Basis dimension error")
 end
 
-println(basis)
+#println(basis)

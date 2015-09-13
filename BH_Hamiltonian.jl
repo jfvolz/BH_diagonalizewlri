@@ -1,5 +1,5 @@
-#a JULIA program to create the Hamiltonian matrix 
-# for an OBC chain in 1D
+#a JULIA program to create the full Hamiltonian matrix 
+# for a PBC/OBC chain in 1D
 
 #Create the basis
 reload("BH_basis.jl")
@@ -14,15 +14,20 @@ for i=1:D
     #Diagonal part
     Usum = 0
 	for j=1:M
-		Usum += bra[j]*(bra[j]-1)  
+		Usum += bra[j]*(bra[j]+1)  
 	end
     FullHam[i,i] = U*Usum/2.  #The diagonal operators
 
-	#The off-diagonal part (OBC chain)
-	for j=1:M-1
+	#The off-diagonal part 
+	#for j=1:M-1 # (OBC chain)
+	for j=1:M  # (PBC chain)
 		ket1 = copy(bra)
 		site1 = j
-		site2 = j+1
+		if j != M
+			site2 = j+1
+		else
+			site2 = 1
+		end
 
 		#Adag1 = ket1[site1]+1
 		A1 = ket1[site1]-1
@@ -48,16 +53,16 @@ for i=1:D
 		for b = (i+1):D
 			testbra = sub(basis,(b-1)*M+1:(b-1)*M+M) #unpack 
 			if testbra == ket1
-				FullHam[i,b] = J
-				FullHam[b,i] = J
+				FullHam[i,b] = T
+				FullHam[b,i] = T
 				found1 = true
 			end
 			if testbra == ket2
-				FullHam[i,b] = J
-				FullHam[b,i] = J
+				FullHam[i,b] = T
+				FullHam[b,i] = T
 				found2 = true
 			end
-			if found1 == true && found2==true break end
+			if (found1 == true) && (found2 == true) break end
 		end
 	end
 end
