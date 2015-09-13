@@ -2,9 +2,9 @@
 # H = -J \sum_<ij> (b+ib-j + b-ib+j) + U/2 \sum_i n_i(n_i-1)
 
 #Number of particles
-N = 3 
+N = 4 
 #Number of sites
-M = 3 
+M = 4 
 
 #Hamiltonian parameters
 J = -1.0
