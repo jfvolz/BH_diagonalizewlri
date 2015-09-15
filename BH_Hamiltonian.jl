@@ -14,7 +14,7 @@ for i=1:D
     #Diagonal part
     Usum = 0
 	for j=1:M
-		Usum += bra[j]*(bra[j]+1)  
+		Usum += bra[j]*(bra[j]-1)  
 	end
     FullHam[i,i] = U*Usum/2.  #The diagonal operators
 
@@ -37,7 +37,8 @@ for i=1:D
         #A^dagger A
 		if A2 >=0
 			ket1[site1] += 1
-			ket1[site2] -= 1
+			ket1[site2] -= 1 
+			val1 = sqrt(bra[site1]+1) * sqrt(bra[site2]) #sqrt of occupation
 		end
 
 		ket2 = copy(bra) 
@@ -45,6 +46,7 @@ for i=1:D
 		if A1 >=0
 			ket2[site1] -= 1
 			ket2[site2] += 1
+			val2 = sqrt(bra[site1]) * sqrt(bra[site2]+1) #sqrt of occupation
 		end
 
 		#Now search the entire basis for the corresponding bra
@@ -53,13 +55,13 @@ for i=1:D
 		for b = (i+1):D
 			testbra = sub(basis,(b-1)*M+1:(b-1)*M+M) #unpack 
 			if testbra == ket1
-				FullHam[i,b] = T
-				FullHam[b,i] = T
+				FullHam[i,b] += T*val1 #check += versus =
+				FullHam[b,i] += T*val1
 				found1 = true
 			end
 			if testbra == ket2
-				FullHam[i,b] = T
-				FullHam[b,i] = T
+				FullHam[i,b] += T*val2
+				FullHam[b,i] += T*val2
 				found2 = true
 			end
 			if (found1 == true) && (found2 == true) break end
@@ -67,5 +69,6 @@ for i=1:D
 	end
 end
 
-println(FullHam)
+#println(FullHam)
+#println(ishermitian(FullHam))
 

@@ -1,13 +1,29 @@
 #a JULIA program for a full diagonalizaiton 
 # for an OBC chain in 1D
 
-#Create the Hamiltonian
-reload("BH_Hamiltonian.jl")
+#Number of particles
+N = 4 
+#Number of sites
+M = 4 
 
-#http://docs.julialang.org/en/release-0.3/stdlib/linalg/?highlight=lanczos
-#d = eigs(FullHam)  
-d = eigvals(FullHam)
-println(d)
+#Hamiltonian parameters
+T = -1.0
+
+f = open("energy.dat","w")
+for U=1.0:100.0
+	
+	#Create the Hamiltonian
+	reload("BH_Hamiltonian.jl")
+	
+	#http://docs.julialang.org/en/release-0.3/stdlib/linalg/?highlight=lanczos
+	#d = eigs(FullHam)  
+	d = eigvals(FullHam)
+	#println(U," ",d[1])
+	write(f,join((U,d[1])," "), "\n")
+	flush(f)
+
+end
+close(f)
 
 #SparseHam = sparse(FullHam)
 #println(SparseHam)
