@@ -2,9 +2,9 @@
 # for an OBC chain in 1D
 
 #Number of particles
-const N = 2 
+const N = 4 
 #Number of sites
-const M = 3 
+const M = 4 
 
 #Hamiltonian parameters
 const T = -1.0
@@ -27,11 +27,19 @@ println(U," ",d[2])
 #println(d[2][:,1])
 #-------
 
+#Begin calculation of the reduced density matrix
+Asize = 2 # how many sites in region A
+Abasis = Int64[] 
+for i=0:N-1
+	tempbasis = CreateBasis(N-i,Asize)
+	append!(Abasis,tempbasis)
+end
+tempbasis = zeros(Asize)
+append!(Abasis,tempbasis) #this is the reduced basis for region A
+#println(Abasis)
+
 #dimension of the total Hilbert space
 D = div(length(basis),M)
-
-const Asize = 1 # how many sites in region A
-
 for i=1:D
 	bra = sub(basis,(i-1)*M+1:(i-1)*M+M) #unpack the bra/ket from the total basis vector
 	println(bra," ",d[2][i]) #this is the eigenvector 
