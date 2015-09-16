@@ -10,7 +10,13 @@ const M = 3
 const T = -1.0
 const U = 1.0
 
-reload("BH_sparseHam.jl")
+include("BH_basis.jl")
+basis = CreateBasis(N,M)
+println(basis)
+
+include("BH_sparseHam.jl")
+SparseHam = CreateSparseHam(basis)
+
 #http://docs.julialang.org/en/release-0.3/stdlib/linalg/?highlight=lanczos
 d = eigs(SparseHam, nev=1, which=:SR) 
 println(U," ",d[2])
@@ -20,6 +26,9 @@ println(U," ",d[2])
 #d = eig(FullHam)
 #println(d[2][:,1])
 #-------
+
+#dimension of the total Hilbert space
+D = div(length(basis),M)
 
 const Asize = 1 # how many sites in region A
 

@@ -1,6 +1,6 @@
-#a JULIA program to create the full hilbert space of the Bose Hubbard model
-# H = -T \sum_<ij> (b+ib-j + b-ib+j) + U/2 \sum_i n_i(n_i-1)
+#a JULIA function to create the full hilbert space of the Bose Hubbard model
 
+function CreateBasis(N,M)
 
 #Hilbert Space Dimension
 D = binomial(N+M-1,M-1)
@@ -51,4 +51,8 @@ if D != i
 	println("Basis dimension error")
 end
 
-#println(basis)
+println(length(basis)," ",D)
+
+return basis
+end
+

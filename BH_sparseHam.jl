@@ -1,12 +1,18 @@
 #a JULIA program to create the full Hamiltonian matrix 
 # for a PBC/OBC chain in 1D
+# H = -T \sum_<ij> (b+ib-j + b-ib+j) + U/2 \sum_i n_i(n_i-1)
+
+function CreateSparseHam(basis)
 
 #Create the basis
-reload("BH_basis.jl")
+#reload("BH_basis.jl")
 
 I = Int64[]  #empty arrays for Sparse Hamiltonian
 J = Int64[] 
 Element = Float64[]
+
+D = div(length(basis),M)
+println(D)
 
 for i=1:D
 
@@ -85,3 +91,5 @@ end
 
 SparseHam = sparse(I,J,Element,D,D) #create the actual sparse matrix
 
+return SparseHam
+end
