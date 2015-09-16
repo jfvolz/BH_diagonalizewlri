@@ -40,8 +40,22 @@ append!(Abasis,tempbasis) #this is the reduced basis for region A
 
 #dimension of the total Hilbert space
 D = div(length(basis),M)
-for i=1:D
-	bra = sub(basis,(i-1)*M+1:(i-1)*M+M) #unpack the bra/ket from the total basis vector
-	println(bra," ",d[2][i]) #this is the eigenvector 
+#dimension of the subspace A
+DimA = div(length(Abasis),Asize)
+#println("DimA ",DimA)
+BDensityM = zeros(D-DimA,D-DimA) #The density matrix over B
+
+#perform the Trace_A
+for j=1:DimA
+	braA = sub(Abasis,(j-1)*Asize+1:(j-1)*Asize+Asize) #unpack the bra/ket 
+	for i=1:D
+		bra = sub(basis,(i-1)*M+1:(i-1)*M+M) #unpack the bra/ket from the total basis vector
+		subbra = sub(bra,1:Asize)
+		#println("trace ",braA," ",subbra)
+		#println(bra," ",d[2][i]) #this is the eigenvector 
+
+	end
+
+
 end
 
