@@ -11,7 +11,7 @@ basis = zeros(Int64,M)
 basis[1] = N
 
 v = copy(basis)
-#println(v)
+println(v)
 
 i = 1
 exit = false
@@ -42,7 +42,7 @@ while exit == false   #for i = 2:D
 			v[min+1] += 1
 		end
 		append!(basis,v)
-		#println(v)
+		println(v)
 	end
 
 end
