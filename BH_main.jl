@@ -2,12 +2,12 @@
 # for an OBC chain in 1D
 
 #Number of particles
-N = 4 
+const N = 4 
 #Number of sites
-M = 4 
+const M = 4 
 
 #Hamiltonian parameters
-T = -1.0
+const T = -1.0
 
 f = open("energy.dat","w")
 for U=1.0:100.0
