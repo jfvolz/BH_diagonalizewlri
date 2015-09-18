@@ -14,17 +14,9 @@ include("BH_basis.jl")
 basis = CreateBasis(N,M)
 println(basis)
 
-include("serialNumber.jl")
-D = div(length(basis),M)
-test = div((D-1),2)
-bra = sub(basis,(test-1)*M+1:(test-1)*M+M) #unpack the bra/ket from the total basis vector
-temp = SerialNum(N,M,bra)
-println(temp)
-
-
-# include("BH_sparseHam.jl")
-# SparseHam = CreateSparseHam(basis)
-# 
+include("BH_sparseHam.jl")
+SparseHam = CreateSparseHam(basis)
+ 
 #  #http://docs.julialang.org/en/release-0.3/stdlib/linalg/?highlight=lanczos
 #  d = eigs(SparseHam, nev=1, which=:SR) 
 #  println(U," ",d[2])
