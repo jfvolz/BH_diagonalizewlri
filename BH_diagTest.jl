@@ -48,8 +48,9 @@ println("DimA ",DimA)
 #perform the Trace_A
 for j=1:DimA
 	braA = sub(Abasis,(j-1)*Asize+1:(j-1)*Asize+Asize) #unpack the bra/ket 
-	index = SerialNum(N,Asize,braA)
-	println(j," ",index," ",braA)
+	#index = SerialNum(N,Asize,braA) 
+	index = subSerialNum(sum(braA),Asize,N,braA)
+	println(j," ",index," ",braA," ",sum(braA))
 
 # 	for i=1:D
 # 		bra = sub(basis,(i-1)*M+1:(i-1)*M+M) #unpack the bra/ket from the total basis vector
