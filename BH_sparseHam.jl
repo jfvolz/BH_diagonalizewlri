@@ -53,9 +53,6 @@ for i=1:D
 			push!(I,i) #row
 			push!(J,b) #column
 			push!(Element,T*val1)  
-			#push!(I,b) #row
-			#push!(J,i) #column
-			#push!(Element,T*val1)  
 		end
 
 		ket2 = copy(bra) 
@@ -69,9 +66,6 @@ for i=1:D
 			push!(I,i) #row
 			push!(J,b) #column
 			push!(Element,T*val2)  
-			#push!(I,b) #row
-			#push!(J,i) #column
-			#push!(Element,T*val2)  
 		end
 	end
 end
