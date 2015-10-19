@@ -39,7 +39,7 @@ function subSerialNum(N,M,Ntot,vec)
 offset = 0
 for i = 1:(Ntot-N)        #add the dims of Hilbert spaces of other particle numbers 
 	count = Ntot - i + 1  
-	offset += binomial (count+M-1,M-1)
+	offset += binomial(count+M-1,M-1)
 end
 
 return SerialNum(N,M,vec) + offset
