@@ -75,7 +75,7 @@ Lsum=0.0
 for i=1:DimB
 	Lsum += lambda[1][i]
 end
-if (Lsum - 1.0) > 1e-12  #some bounds on the eigenvalue sum
+if abs(Lsum - 1.0) > 1e-12  #some bounds on the eigenvalue sum
 	println("RDM eigenvalue error ",Lsum)
 end
 

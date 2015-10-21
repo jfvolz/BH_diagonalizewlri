@@ -53,7 +53,7 @@ for i=1:size(S,1)
 	sum4 += S[i]^4
 end
 #println(sum2)
-if (sum2 - 1.0) > 1e-12  #some bounds on the eigenvalue sum
+if abs(sum2 - 1.0) > 1e-12  #some bounds on the eigenvalue sum
 	println("RDM eigenvalue error ",sum2)
 end
 
