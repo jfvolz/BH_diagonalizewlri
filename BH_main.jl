@@ -11,6 +11,7 @@ const Asize = 2
 
 include("BH_basis.jl")
 include("BH_sparseHam.jl")
+include("particleEntropy_SVD.jl")
 include("spatialEntropy_SVD.jl")
 
 basis = CreateBasis(N,M)
@@ -29,10 +30,11 @@ for U=1.0:0.5:20.0
 	d = eigs(SparseHam, nev=1, which=:SR) 
 
     #Calcualte the second Renyi entropy
-	s2 = SpatialEE_SVD(N,M,Asize,d)
+	s2_particle = ParticleEE_SVD(N, M, Asize, d[2])
+	s2_spatial = SpatialEE_SVD(N,M,Asize,d)
 	#println(s2," ",s2b)
 
-	write(f,join((U,d[1][1],s2)," "), "\n")
+	write(f,join((U,d[1][1],s2_particle,s2_spatial)," "), "\n")
 	flush(f)
 
 end
