@@ -29,18 +29,12 @@ function SpatialEE_SVD(N, M, Asize, d)
 		Amatrix[row, col] = d[2][i] # Assign the matrix the appropriate element from PSI
 	end
 
-	U, S, V = svd(Amatrix) # singular value decomposition
+	S = svdvals(Amatrix)
+	err = abs(sum(S.^2) - 1.0)
 
-	# sum squares of singular values
-	sum2=0.0
-	sum4=0.0
-	for i=1:size(S,1)
-		sum2 += S[i]^2
-		sum4 += S[i]^4
-	end
-	if abs(sum2 - 1.0) > 1e-12 # some bounds on the eigenvalue sum
-		warn("RDM eigenvalue error ", sum2)
+	if err > 1e-12
+		warn("RDM eigenvalue error ", err)
 	end
 
-	-log(sum4)
+	-log(sum(S.^4))
 end
