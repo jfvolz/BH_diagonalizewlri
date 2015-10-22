@@ -28,7 +28,7 @@ open("output.dat", "w") do f
 
 		# Calculate the second Renyi entropy
 		s2_particle = ParticleEE_SVD(N, M, Asize, d[2])
-		s2_spatial = SpatialEE_SVD(N, M, Asize, d)
+		s2_spatial = SpatialEE_SVD(N, M, Asize, d[2])
 
 		write(f, join((U, d[1][1], s2_particle, s2_spatial), " "), "\n")
 		flush(f)

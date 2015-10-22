@@ -1,6 +1,6 @@
 # Calculate the spatial entanglement entropy of a region A, using the SVD.
 function SpatialEE_SVD(N, M, Asize, d)
-	# N, M, size of region A, vector of eigenvalues from Lanczos
+	# N, M, size of region A, ground state components
 
 	Bsize = M - Asize
 
@@ -26,7 +26,7 @@ function SpatialEE_SVD(N, M, Asize, d)
 		row = subSerialNum(sum(braA), Asize, N, braA)
 		col = subSerialNum(sum(braB), Bsize, N, braB)
 
-		Amatrix[row, col] = d[2][i] # Assign the matrix the appropriate element from PSI
+		Amatrix[row, col] = d[i] # Assign the matrix the appropriate element from PSI
 	end
 
 	S = svdvals(Amatrix)
