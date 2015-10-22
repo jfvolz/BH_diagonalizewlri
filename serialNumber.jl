@@ -5,16 +5,13 @@ function SerialNum(N, M, vec) # vec should have length M: i.e. the basis element
 
 	for mu=1:M
 		Smu = 0
-		for nu = mu+1:M
+		for nu=mu+1:M
 			Smu += vec[nu]
 		end
 
-		Imu = 0
 		for i=0:vec[mu]-1
-			Imu += binomial(N-Smu-i+mu-2, mu-2) # typo: sum missing in paper
+			II += binomial(N-Smu-i+mu-2, mu-2) # typo: sum missing in paper
 		end
-
-		II += Imu
 	end
 
 	II
@@ -25,9 +22,8 @@ end
 function subSerialNum(N, M, Ntot, vec)
 	offset = 0
 
-	for i = 1:(Ntot-N) # add the dims of Hilbert spaces of other particle numbers
-		count = Ntot - i + 1
-		offset += binomial(count+M-1,M-1)
+	for i=1:Ntot-N # add the dims of Hilbert spaces of other particle numbers
+		offset += binomial(Ntot-i+M, M-1)
 	end
 
 	SerialNum(N, M, vec) + offset
