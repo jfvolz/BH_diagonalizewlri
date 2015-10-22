@@ -7,14 +7,11 @@ function ParticleEE_SVD(N, M, Asize, d)
 	DimA = M^Asize
 	DimB = M^Bsize
 
-	# Basis states
-	bras = reshape(transpose(basis), M, D)
-
 	# Matrix to SVD
 	Amatrix = zeros(DimA, DimB)
 
 	for i=1:D
-		bra = bras[:, i]
+		bra = basis[:, i]
 
 		# Generate a representative state from the occupations.
 		state = vcat([[j for _=1:bra[j]] for j=1:M]...)

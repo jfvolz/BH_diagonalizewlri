@@ -13,13 +13,13 @@ function SpatialEE_SVD(N, M, Asize, d)
 	end
 
 	# dimension of the total Hilbert space
-	D = div(length(basis), M)
+	D = size(basis, 2)
 
 	Amatrix = zeros(DimA, DimB) # This is the matrix that we will SVD
 
 	# form the Amatrix
 	for i=1:D
-		bra = sub(basis, (i-1)*M+1:(i-1)*M+M) # unpack the bra/ket from the total basis vector
+		bra = basis[:, i]
 		braA = sub(bra, 1:Asize)
 		braB = sub(bra, Asize+1:M)
 
