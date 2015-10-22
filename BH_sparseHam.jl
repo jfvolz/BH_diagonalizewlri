@@ -1,76 +1,67 @@
-#a JULIA program to create the full Hamiltonian matrix 
-# for a PBC/OBC chain in 1D
+# Create the full Hamiltonian matrix for a PBC/OBC chain in 1D.
 # H = -T \sum_<ij> (b+ib-j + b-ib+j) + U/2 \sum_i n_i(n_i-1)
+function CreateSparseHam(basis, T, U)
+	include("serialNumber.jl")
 
-function CreateSparseHam(basis,T,U)
+	I = Int64[] # empty arrays for sparse Hamiltonian
+	J = Int64[]
+	Element = Float64[]
 
-include("serialNumber.jl")
+	D = div(length(basis), M)
 
-I = Int64[]  #empty arrays for Sparse Hamiltonian
-J = Int64[] 
-Element = Float64[]
+	for i=1:D
+		bra = sub(basis, (i-1)*M+1:(i-1)*M+M) # unpack the bra/ket from the total basis vector
 
-D = div(length(basis),M)
-#println("basis dimension ",D)
-
-for i=1:D
-
-	bra = sub(basis,(i-1)*M+1:(i-1)*M+M) #unpack the bra/ket from the total basis vector
-	#println(bra)
-	  
-    #Diagonal part
-    Usum = 0
-	for j=1:M
-		Usum += bra[j]*(bra[j]-1)  
-	end
-	#Sparse Matrix creation
-	push!(I,i) #row
-	push!(J,i) #column
-	push!(Element,U*Usum/2.)  #The diagonal operators
-
-
-	#The off-diagonal part 
-	#for j=1:M-1 # (OBC chain)
-	for j=1:M  # (PBC chain)
-		site1 = j
-		if j != M
-			site2 = j+1
-		else
-			site2 = 1
+		# Diagonal part
+		Usum = 0
+		for j=1:M
+			Usum += bra[j] * (bra[j]-1)
 		end
+		# Sparse Matrix creation
+		push!(I, i) # row
+		push!(J, i) # column
+		push!(Element, U * Usum/2.) # Diagonal operators
 
-		ket1 = copy(bra)
-		A1 = ket1[site1]-1 #We're going to check for annihilation of the state
-		A2 = ket1[site2]-1
+		# Off-diagonal part
+		#for j=1:M-1 # (OBC chain)
+		for j=1:M # (PBC chain)
+			site1 = j
+			if j != M
+				site2 = j+1
+			else
+				site2 = 1
+			end
 
-        #A^dagger A
-		if A2 >=0
-			ket1[site1] += 1
-			ket1[site2] -= 1 
-			val1 = sqrt(bra[site1]+1) * sqrt(bra[site2]) #sqrt of occupation
-			#Now find the position of the kets using their Serial Number
-			b = SerialNum(N,M,ket1)
-			push!(I,i) #row
-			push!(J,b) #column
-			push!(Element,T*val1)  
-		end
+			ket1 = copy(bra)
+			A1 = ket1[site1]-1 # We're going to check for annihilation of the state
+			A2 = ket1[site2]-1
 
-		ket2 = copy(bra) 
-		#A A^dagger
-		if A1 >=0
-			ket2[site1] -= 1
-			ket2[site2] += 1
-			val2 = sqrt(bra[site1]) * sqrt(bra[site2]+1) #sqrt of occupation
-			#Now find the position of the kets using their Serial Number
-			b = SerialNum(N,M,ket2)
-			push!(I,i) #row
-			push!(J,b) #column
-			push!(Element,T*val2)  
+			# A^dagger A
+			if A2 >=0
+				ket1[site1] += 1
+				ket1[site2] -= 1
+				val1 = sqrt(bra[site1]+1) * sqrt(bra[site2]) # sqrt of occupation
+				# Now find the position of the kets using their Serial Number
+				b = SerialNum(N, M, ket1)
+				push!(I, i) # row
+				push!(J, b) # column
+				push!(Element, T * val1)
+			end
+
+			ket2 = copy(bra)
+			# A A^dagger
+			if A1 >=0
+				ket2[site1] -= 1
+				ket2[site2] += 1
+				val2 = sqrt(bra[site1]) * sqrt(bra[site2]+1) # sqrt of occupation
+				# Now find the position of the kets using their Serial Number
+				b = SerialNum(N, M, ket2)
+				push!(I, i) # row
+				push!(J, b) # column
+				push!(Element, T * val2)
+			end
 		end
 	end
-end
 
-SparseHam = sparse(I,J,Element,D,D) #create the actual sparse matrix
-
-return SparseHam
+	sparse(I, J, Element, D, D) # create the actual sparse matrix
 end
