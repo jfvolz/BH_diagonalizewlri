@@ -8,25 +8,32 @@ function ParticleEE_SVD(N, M, Asize, d)
 	DimB = M^Bsize
 
 	# Matrix to SVD
-	Amatrix = zeros(DimA, DimB)
+	Amatrix = Array(Float64, DimA, DimB)
 
-	for i=1:D
-		bra = basis[:, i]
+	fM = factorial(M)
+	occupA = Array(Int64, M)
+	occup = Array(Int64, M)
 
-		# Generate a representative state from the occupations.
-		state = vcat([[j for _=1:bra[j]] for j=1:M]...)
-		# Find all the unique permutations of the representative state.
-		perms = unique(permutations(state))
-		norm = 1.0 / sqrt(length(perms))
+	for i=1:DimA
+		fill!(occupA, 0)
 
-		for perm in perms
-			stateA = sub(perm, 1:Asize)
-			stateB = sub(perm, Asize+1:M)
+		for k=1:Asize
+			occupA[1 + div(i - 1, M^(k - 1)) % M] += 1
+		end
 
-			row = 1 + sum([M^(i-1) * (x-1) for (i, x) in enumerate(stateA)])
-			col = 1 + sum([M^(i-1) * (x-1) for (i, x) in enumerate(stateB)])
+		for j=1:DimB
+			copy!(occup, occupA)
 
-			Amatrix[row, col] = norm * d[i]
+			for k=1:Bsize
+				occup[1 + div(j - 1, M^(k - 1)) % M] += 1
+			end
+
+			norm = 1 / fM
+			for x in occup
+				norm *= factorial(x)
+			end
+
+			Amatrix[i, j] = sqrt(norm) * d[SerialNum(N, M, occup)]
 		end
 	end
 
