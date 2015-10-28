@@ -1,11 +1,23 @@
-# Julia program for a full diagonalization for an OBC chain in 1D.
+# Renyi entanglement entropy of Bose-Hubbard chains in 1D.
+
+if length(ARGS) != 4
+    println("usage: <particles> <sites> <A length> <boundary conditions>")
+    exit(1)
+end
 
 # Number of particles
-const N = 4
+const N = parse(Int, ARGS[1])
 # Number of sites
-const M = 4
-# size of region A
-const Asize = 2
+const M = parse(Int, ARGS[2])
+# Size of region A
+const Asize = parse(Int, ARGS[3])
+# Boundary conditions
+const boundary = ARGS[4]
+
+if !(boundary in ["OBC", "PBC"])
+    println("valid boundary conditions: OBC PBC")
+    exit(1)
+end
 
 include("BH_basis.jl")
 include("BH_sparseHam.jl")
@@ -20,7 +32,7 @@ T = -1.0
 open("output.dat", "w") do f
 	for U=1.0:0.5:20.0
 		# Create the Hamiltonian
-		SparseHam = CreateSparseHam(basis, T, U)
+		SparseHam = CreateSparseHam(basis, T, U, boundary=boundary)
 
 		# Perform the Lanczos diagonalization to obtain the lowest eigenvector
 		# http://docs.julialang.org/en/release-0.3/stdlib/linalg/?highlight=lanczos
