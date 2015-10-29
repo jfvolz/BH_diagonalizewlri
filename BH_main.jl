@@ -1,7 +1,7 @@
 # Renyi entanglement entropy of Bose-Hubbard chains in 1D.
 
-if length(ARGS) != 4
-    println("usage: <particles> <sites> <A length> <boundary conditions>")
+if length(ARGS) != 5
+    println("usage: <particles> <sites> <A length> <boundary conditions> <output>")
     exit(1)
 end
 
@@ -13,6 +13,8 @@ const M = parse(Int, ARGS[2])
 const Asize = parse(Int, ARGS[3])
 # Boundary conditions
 const boundary = ARGS[4]
+# Output file.
+const output = ARGS[5]
 
 if !(boundary in ["OBC", "PBC"])
     println("valid boundary conditions: OBC PBC")
@@ -29,7 +31,7 @@ basis = CreateBasis(N, M)
 # Hamiltonian parameters
 T = -1.0
 
-open("output.dat", "w") do f
+open(output, "w") do f
 	for U=1.0:0.5:20.0
 		# Create the Hamiltonian
 		SparseHam = CreateSparseHam(basis, T, U, boundary=boundary)
