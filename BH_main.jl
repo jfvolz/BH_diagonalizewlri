@@ -25,6 +25,7 @@ include("BH_basis.jl")
 include("BH_sparseHam.jl")
 include("particleEntropy_SVD.jl")
 include("spatialEntropy_SVD.jl")
+include("operationalEntropy_SVD.jl")
 
 basis = CreateBasis(N, M)
 
@@ -43,8 +44,9 @@ open(output, "w") do f
 		# Calculate the second Renyi entropy
 		s2_particle = ParticleEE_SVD(N, M, Asize, d[2])
 		s2_spatial = SpatialEE_SVD(N, M, Asize, d[2])
+		s2_operational = OperationalEE_SVD(N, M, Asize, d[2])
 
-		write(f, join((U, d[1][1], s2_particle, s2_spatial), " "), "\n")
+		write(f, join((U, d[1][1], s2_particle, s2_spatial, s2_operational), " "), "\n")
 		flush(f)
 	end
 end
