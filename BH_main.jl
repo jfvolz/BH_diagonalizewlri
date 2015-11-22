@@ -33,6 +33,9 @@ basis = CreateBasis(N, M)
 T = -1.0
 
 open(output, "w") do f
+	write(f, "# M=$(M), N=$(N), $(boundary)\n")
+	write(f, "# U/t E0 S2(n=$(Asize)) S2(l=$(Asize)) Eop(l=$(Asize))\n")
+
 	for U=1.0:0.5:20.0
 		# Create the Hamiltonian
 		SparseHam = CreateSparseHam(basis, T, U, boundary=boundary)
