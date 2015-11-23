@@ -1,25 +1,56 @@
 # Renyi entanglement entropy of Bose-Hubbard chains in 1D.
 
-if length(ARGS) != 5
-    println("usage: <particles> <sites> <A length> <boundary conditions> <output>")
-    exit(1)
-end
+using ArgParse
 
-# Number of particles
-const N = parse(Int, ARGS[1])
+s = ArgParseSettings()
+s.autofix_names = true
+@add_arg_table s begin
+	"M"
+		help = "number of sites"
+		arg_type = Int
+		required = true
+	"N"
+		help = "number of particles"
+		arg_type = Int
+		required = true
+	"--out"
+		metavar = "FILE"
+		help = "path to output file"
+		required = true
+end
+add_arg_group(s, "boundary conditions")
+@add_arg_table s begin
+	"--pbc"
+		help = "periodic boundary conditions (default)"
+		action = :store_const
+		dest_name = "boundary"
+		constant = :PBC
+	"--obc"
+		help = "open boundary conditions"
+		action = :store_const
+		dest_name = "boundary"
+		constant = :OBC
+end
+add_arg_group(s, "entanglement entropy")
+@add_arg_table s begin
+	"--ee-all"
+		metavar = "XA"
+		help = "compute all EEs"
+		arg_type = Int
+		required = true
+end
+c = parsed_args = parse_args(ARGS, s, as_symbols=true)
+
 # Number of sites
-const M = parse(Int, ARGS[2])
-# Size of region A
-const Asize = parse(Int, ARGS[3])
+const M = c[:M]
+# Number of particles
+const N = c[:N]
+# Output file
+const output = c[:out]
 # Boundary conditions
-const boundary = ARGS[4]
-# Output file.
-const output = ARGS[5]
-
-if !(boundary in ["OBC", "PBC"])
-    println("valid boundary conditions: OBC PBC")
-    exit(1)
-end
+const boundary = c[:boundary] === nothing ? :PBC : c[:boundary]
+# Size of region A
+const Asize = c[:ee_all]
 
 include("BH_basis.jl")
 include("BH_sparseHam.jl")

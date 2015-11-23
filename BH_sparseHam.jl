@@ -1,7 +1,7 @@
 # Create the full Hamiltonian matrix for a PBC/OBC chain in 1D.
 # H = -T \sum_<ij> (b+ib-j + b-ib+j) + U/2 \sum_i n_i(n_i-1)
-function CreateSparseHam(basis, T, U; boundary="PBC")
-	# Boundary conditions should be "PBC" or "OBC".
+function CreateSparseHam(basis, T, U; boundary=:PBC)
+	# Boundary conditions should be :PBC or :OBC.
 
 	include("serialNumber.jl")
 
@@ -25,7 +25,7 @@ function CreateSparseHam(basis, T, U; boundary="PBC")
 		push!(Element, U * Usum/2.) # Diagonal operators
 
 		# Off-diagonal part
-		end_site = boundary == "PBC" ? M : M - 1
+		end_site = boundary == :PBC ? M : M - 1
 
 		for j=1:end_site
 			site1 = j
