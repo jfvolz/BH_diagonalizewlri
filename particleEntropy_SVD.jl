@@ -10,7 +10,7 @@ function ParticleEE_SVD(N, M, Asize, d)
 	# Matrix to SVD
 	Amatrix = Array(Float64, DimA, DimB)
 
-	fM = factorial(M)
+	fN = factorial(N)
 	occupA = Array(Int64, M)
 	occup = Array(Int64, M)
 
@@ -28,7 +28,7 @@ function ParticleEE_SVD(N, M, Asize, d)
 				occup[1 + div(j - 1, M^(k - 1)) % M] += 1
 			end
 
-			norm = 1 / fM
+			norm = 1 / fN
 			for x in occup
 				norm *= factorial(x)
 			end
