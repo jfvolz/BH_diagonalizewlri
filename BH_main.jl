@@ -36,11 +36,29 @@ add_arg_group(s, "boundary conditions")
 		dest_name = "boundary"
 		constant = :OBC
 end
+add_arg_group(s, "BH parameter range")
+@add_arg_table s begin
+	"--u-min"
+		metavar = "U"
+		help = "minimum U/t"
+		arg_type = Float64
+		default = 1.0
+	"--u-max"
+		metavar = "U"
+		help = "maximum U/t"
+		arg_type = Float64
+		default = 20.0
+	"--u-step"
+		metavar = "U"
+		help = "U/t step"
+		arg_type = Float64
+		default = 0.5
+end
 add_arg_group(s, "entanglement entropy")
 @add_arg_table s begin
-	"--ee-all"
+	"--ee"
 		metavar = "XA"
-		help = "compute all EEs"
+		help = "compute all EEs with partition size XA"
 		arg_type = Int
 		required = true
 end
@@ -57,7 +75,7 @@ const site_max = c[:site_max]
 # Boundary conditions
 const boundary = c[:boundary] === nothing ? :PBC : c[:boundary]
 # Size of region A
-const Asize = c[:ee_all]
+const Asize = c[:ee]
 
 include("BH_sparseHam.jl")
 include("particleEntropy_SVD.jl")
@@ -81,7 +99,7 @@ open(output, "w") do f
 	end
 	write(f, "# U/t E0 S2(n=$(Asize)) S2(l=$(Asize)) Eop(l=$(Asize))\n")
 
-	for U=1.0:0.5:20.0
+	for U=c[:u_min]:c[:u_step]:c[:u_max]
 		# Create the Hamiltonian
 		SparseHam = CreateSparseHam(basis, T, U, boundary=boundary)
 
