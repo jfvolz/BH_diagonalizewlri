@@ -11,8 +11,8 @@ function ParticleEE_SVD(N, M, Asize, d)
 	Amatrix = Array(Float64, DimA, DimB)
 
 	fN = factorial(N)
-	occupA = Array(Int64, M)
-	occup = Array(Int64, M)
+	occupA = Array(Int, M)
+	occup = Array(Int, M)
 
 	for i=1:DimA
 		fill!(occupA, 0)
@@ -33,7 +33,7 @@ function ParticleEE_SVD(N, M, Asize, d)
 				norm *= factorial(x)
 			end
 
-			Amatrix[i, j] = sqrt(norm) * d[SerialNum(N, M, occup)]
+			Amatrix[i, j] = sqrt(norm) * d[serial_num(basis, occup)]
 		end
 	end
 

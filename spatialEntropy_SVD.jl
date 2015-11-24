@@ -8,23 +8,19 @@ function SpatialEE_SVD(N, M, Asize, d)
 	DimA = 1 # start at 1, for the [0,0,0,....,0] element
 	DimB = 1
 	for i=0:N-1
-		DimA += binomial(N-i+Asize-1, Asize-1)
-		DimB += binomial(N-i+Bsize-1, Bsize-1)
+		DimA += num_vectors(N-i, Asize)
+		DimB += num_vectors(N-i, Bsize)
 	end
-
-	# dimension of the total Hilbert space
-	D = size(basis, 2)
 
 	Amatrix = zeros(DimA, DimB) # This is the matrix that we will SVD
 
 	# form the Amatrix
-	for i=1:D
-		bra = basis[:, i]
+	for (i, bra) in enumerate(basis)
 		braA = sub(bra, 1:Asize)
 		braB = sub(bra, Asize+1:M)
 
-		row = subSerialNum(sum(braA), Asize, N, braA)
-		col = subSerialNum(sum(braB), Bsize, N, braB)
+		row = sub_serial_num(basis, braA)
+		col = sub_serial_num(basis, braB)
 
 		Amatrix[row, col] = d[i] # Assign the matrix the appropriate element from PSI
 	end

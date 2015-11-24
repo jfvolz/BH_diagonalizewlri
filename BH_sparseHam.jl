@@ -3,17 +3,11 @@
 function CreateSparseHam(basis, T, U; boundary=:PBC)
 	# Boundary conditions should be :PBC or :OBC.
 
-	include("serialNumber.jl")
-
 	I = Int64[] # empty arrays for sparse Hamiltonian
 	J = Int64[]
 	Element = Float64[]
 
-	D = size(basis, 2)
-
-	for i=1:D
-		bra = basis[:, i]
-
+	for (i, bra) in enumerate(basis)
 		# Diagonal part
 		Usum = 0
 		for j=1:M
@@ -45,7 +39,7 @@ function CreateSparseHam(basis, T, U; boundary=:PBC)
 				ket1[site2] -= 1
 				val1 = sqrt(bra[site1]+1) * sqrt(bra[site2]) # sqrt of occupation
 				# Now find the position of the kets using their Serial Number
-				b = SerialNum(N, M, ket1)
+				b = serial_num(basis, ket1)
 				push!(I, i) # row
 				push!(J, b) # column
 				push!(Element, T * val1)
@@ -58,7 +52,7 @@ function CreateSparseHam(basis, T, U; boundary=:PBC)
 				ket2[site2] += 1
 				val2 = sqrt(bra[site1]) * sqrt(bra[site2]+1) # sqrt of occupation
 				# Now find the position of the kets using their Serial Number
-				b = SerialNum(N, M, ket2)
+				b = serial_num(basis, ket2)
 				push!(I, i) # row
 				push!(J, b) # column
 				push!(Element, T * val2)
@@ -66,5 +60,5 @@ function CreateSparseHam(basis, T, U; boundary=:PBC)
 		end
 	end
 
-	sparse(I, J, Element, D, D) # create the actual sparse matrix
+	sparse(I, J, Element, length(basis), length(basis)) # create the actual sparse matrix
 end

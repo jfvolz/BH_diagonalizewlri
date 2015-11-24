@@ -1,6 +1,7 @@
 # Renyi entanglement entropy of Bose-Hubbard chains in 1D.
 
 using ArgParse
+using JeszenszkiBasis
 
 s = ArgParseSettings()
 s.autofix_names = true
@@ -52,13 +53,12 @@ const boundary = c[:boundary] === nothing ? :PBC : c[:boundary]
 # Size of region A
 const Asize = c[:ee_all]
 
-include("BH_basis.jl")
 include("BH_sparseHam.jl")
 include("particleEntropy_SVD.jl")
 include("spatialEntropy_SVD.jl")
 include("operationalEntropy_SVD.jl")
 
-basis = CreateBasis(N, M)
+const basis = Szbasis(M, N)
 
 # Hamiltonian parameters
 T = -1.0

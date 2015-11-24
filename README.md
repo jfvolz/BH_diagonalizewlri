@@ -9,6 +9,7 @@ See also [Zhang et al., 2011](http://arxiv.org/pdf/1102.4006v1.pdf).
 ## Requirements
 
 * [ArgParse](https://github.com/carlobaldassi/ArgParse.jl) (`Pkg.add("ArgParse")`)
+* [JeszenszkiBasis](https://github.com/0/JeszenszkiBasis.jl) (`Pkg.clone("https://github.com/0/JeszenszkiBasis.jl.git")`)
 
 
 ## Examples
