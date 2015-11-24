@@ -37,12 +37,14 @@ function CreateSparseHam(basis, T, U; boundary=:PBC)
 			if A2 >=0
 				ket1[site1] += 1
 				ket1[site2] -= 1
-				val1 = sqrt(bra[site1]+1) * sqrt(bra[site2]) # sqrt of occupation
-				# Now find the position of the kets using their Serial Number
-				b = serial_num(basis, ket1)
-				push!(I, i) # row
-				push!(J, b) # column
-				push!(Element, T * val1)
+				if ket1 in basis
+					val1 = sqrt(bra[site1]+1) * sqrt(bra[site2]) # sqrt of occupation
+					# Now find the position of the kets using their Serial Number
+					b = serial_num(basis, ket1)
+					push!(I, i) # row
+					push!(J, b) # column
+					push!(Element, T * val1)
+				end
 			end
 
 			ket2 = copy(bra)
@@ -50,12 +52,14 @@ function CreateSparseHam(basis, T, U; boundary=:PBC)
 			if A1 >=0
 				ket2[site1] -= 1
 				ket2[site2] += 1
-				val2 = sqrt(bra[site1]) * sqrt(bra[site2]+1) # sqrt of occupation
-				# Now find the position of the kets using their Serial Number
-				b = serial_num(basis, ket2)
-				push!(I, i) # row
-				push!(J, b) # column
-				push!(Element, T * val2)
+				if ket2 in basis
+					val2 = sqrt(bra[site1]) * sqrt(bra[site2]+1) # sqrt of occupation
+					# Now find the position of the kets using their Serial Number
+					b = serial_num(basis, ket2)
+					push!(I, i) # row
+					push!(J, b) # column
+					push!(Element, T * val2)
+				end
 			end
 		end
 	end

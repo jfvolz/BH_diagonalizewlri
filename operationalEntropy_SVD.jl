@@ -9,10 +9,10 @@ function OperationalEE_SVD(N, M, Asize, d)
 	# Matrices to SVD
 	Amatrices = []
 	for i=0:N
-		DimA = num_vectors(i, Asize)
-		DimB = num_vectors(N-i, Bsize)
+		DimA = num_vectors(basis, i, Asize)
+		DimB = num_vectors(basis, N-i, Bsize)
 
-		push!(Amatrices, Array(Float64, DimA, DimB))
+		push!(Amatrices, zeros(Float64, DimA, DimB))
 	end
 
 	norms = zeros(Float64, N+1)
@@ -21,8 +21,8 @@ function OperationalEE_SVD(N, M, Asize, d)
 		braA = sub(bra, 1:Asize)
 		braB = sub(bra, Asize+1:M)
 
-		row = serial_num(Asize, sum(braA), braA)
-		col = serial_num(Bsize, sum(braB), braB)
+		row = serial_num(basis, Asize, sum(braA), braA)
+		col = serial_num(basis, Bsize, sum(braB), braB)
 
 		Amatrices[1 + sum(braA)][row, col] = d[i]
 		norms[1 + sum(braA)] += d[i]^2

@@ -16,3 +16,4 @@ See also [Zhang et al., 2011](http://arxiv.org/pdf/1102.4006v1.pdf).
 
 * `julia BH_main.jl --help`
 * `julia BH_main.jl --out output.dat --ee-all 2 4 4`
+* `julia BH_main.jl --out output.dat --site-max 4 --ee-all 3 6 6`

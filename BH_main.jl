@@ -18,6 +18,10 @@ s.autofix_names = true
 		metavar = "FILE"
 		help = "path to output file"
 		required = true
+	"--site-max"
+		metavar = "N"
+		help = "site occupation restriction"
+		arg_type = Int
 end
 add_arg_group(s, "boundary conditions")
 @add_arg_table s begin
@@ -48,6 +52,8 @@ const M = c[:M]
 const N = c[:N]
 # Output file
 const output = c[:out]
+# Site occupation restriction
+const site_max = c[:site_max]
 # Boundary conditions
 const boundary = c[:boundary] === nothing ? :PBC : c[:boundary]
 # Size of region A
@@ -58,13 +64,21 @@ include("particleEntropy_SVD.jl")
 include("spatialEntropy_SVD.jl")
 include("operationalEntropy_SVD.jl")
 
-const basis = Szbasis(M, N)
+if site_max === nothing
+	const basis = Szbasis(M, N)
+else
+	const basis = RestrictedSzbasis(M, N, site_max)
+end
 
 # Hamiltonian parameters
 T = -1.0
 
 open(output, "w") do f
-	write(f, "# M=$(M), N=$(N), $(boundary)\n")
+	if site_max === nothing
+		write(f, "# M=$(M), N=$(N), $(boundary)\n")
+	else
+		write(f, "# M=$(M), N=$(N), max=$(site_max), $(boundary)\n")
+	end
 	write(f, "# U/t E0 S2(n=$(Asize)) S2(l=$(Asize)) Eop(l=$(Asize))\n")
 
 	for U=1.0:0.5:20.0

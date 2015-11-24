@@ -8,8 +8,8 @@ function SpatialEE_SVD(N, M, Asize, d)
 	DimA = 1 # start at 1, for the [0,0,0,....,0] element
 	DimB = 1
 	for i=0:N-1
-		DimA += num_vectors(N-i, Asize)
-		DimB += num_vectors(N-i, Bsize)
+		DimA += num_vectors(basis, N-i, Asize)
+		DimB += num_vectors(basis, N-i, Bsize)
 	end
 
 	Amatrix = zeros(DimA, DimB) # This is the matrix that we will SVD
