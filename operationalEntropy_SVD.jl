@@ -38,7 +38,7 @@ function OperationalEE_SVD(N, M, Asize, d)
 	errs = [abs(sum(S.^2) - 1.0) for S in Ss]
 
 	if any(errs .> 1e-12)
-		warn("RDM eigenvalue error ", errs)
+		warn("RDM eigenvalue error ", maximum(errs))
 	end
 
 	S2s = [-log(sum(S.^4)) for S in Ss]
