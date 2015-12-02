@@ -1,5 +1,5 @@
 # Calculate the spatial entanglement entropy of a region A, using the SVD.
-function SpatialEE_SVD(N, M, Asize, d)
+function SpatialEE_SVD(N::Int, M::Int, Asize::Int, d::Vector{Float64})
 	# N, M, size of region A, ground state components
 
 	Bsize = M - Asize

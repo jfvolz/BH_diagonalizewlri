@@ -106,11 +106,12 @@ open(output, "w") do f
 		# Perform the Lanczos diagonalization to obtain the lowest eigenvector
 		# http://docs.julialang.org/en/release-0.3/stdlib/linalg/?highlight=lanczos
 		d = eigs(SparseHam, nev=1, which=:SR)
+		wf = vec(d[2])
 
 		# Calculate the second Renyi entropy
-		s2_particle = ParticleEE_SVD(N, M, Asize, d[2])
-		s2_spatial = SpatialEE_SVD(N, M, Asize, d[2])
-		s2_operational = OperationalEE_SVD(N, M, Asize, d[2])
+		s2_particle = ParticleEE_SVD(N, M, Asize, wf)
+		s2_spatial = SpatialEE_SVD(N, M, Asize, wf)
+		s2_operational = OperationalEE_SVD(N, M, Asize, wf)
 
 		write(f, join((U, d[1][1], s2_particle, s2_spatial, s2_operational), " "), "\n")
 		flush(f)

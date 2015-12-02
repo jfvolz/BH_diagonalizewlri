@@ -1,5 +1,5 @@
 # Calculate the particle entanglement entropy for a subset A, using the SVD.
-function ParticleEE_SVD(N, M, Asize, d)
+function ParticleEE_SVD(N::Int, M::Int, Asize::Int, d::Vector{Float64})
 	# Dimension of the total Hilbert space
 	D = length(d)
 	Bsize = N - Asize

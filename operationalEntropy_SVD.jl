@@ -1,7 +1,7 @@
 # Calculate the operational entanglement entropy of a region A, using the SVD.
 # This is the "entanglement of particles" introduced by Wiseman and Vaccaro in
 # 2003.
-function OperationalEE_SVD(N, M, Asize, d)
+function OperationalEE_SVD(N::Int, M::Int, Asize::Int, d::Vector{Float64})
 	# Dimension of the total Hilbert space
 	D = length(d)
 	Bsize = M - Asize
