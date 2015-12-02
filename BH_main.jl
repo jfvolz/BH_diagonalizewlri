@@ -80,7 +80,6 @@ const Asize = c[:ee]
 include("BH_sparseHam.jl")
 include("particleEntropy_SVD.jl")
 include("spatialEntropy_SVD.jl")
-include("operationalEntropy_SVD.jl")
 
 if site_max === nothing
 	const basis = Szbasis(M, N)
@@ -110,8 +109,7 @@ open(output, "w") do f
 
 		# Calculate the second Renyi entropy
 		s2_particle = ParticleEE_SVD(N, M, Asize, wf)
-		s2_spatial = SpatialEE_SVD(N, M, Asize, wf)
-		s2_operational = OperationalEE_SVD(N, M, Asize, wf)
+		s2_spatial, s2_operational = SpatialEE_SVD(N, M, Asize, wf)
 
 		write(f, join((U, d[1][1], s2_particle, s2_spatial, s2_operational), " "), "\n")
 		flush(f)
