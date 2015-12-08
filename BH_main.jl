@@ -30,14 +30,18 @@ add_arg_group(s, "boundary conditions")
 @add_arg_table s begin
     "--pbc"
         help = "periodic boundary conditions (default)"
+        arg_type = BdryCond
         action = :store_const
         dest_name = "boundary"
-        constant = :PBC
+        constant = PBC
+        default = PBC
     "--obc"
         help = "open boundary conditions"
+        arg_type = BdryCond
         action = :store_const
         dest_name = "boundary"
-        constant = :OBC
+        constant = OBC
+        default = PBC
 end
 add_arg_group(s, "BH parameter range")
 @add_arg_table s begin
@@ -76,7 +80,7 @@ const output = c[:out]
 # Site occupation restriction
 const site_max = c[:site_max]
 # Boundary conditions
-const boundary = c[:boundary] === nothing ? :PBC : c[:boundary]
+const boundary = c[:boundary]
 # Size of region A
 const Asize = c[:ee]
 

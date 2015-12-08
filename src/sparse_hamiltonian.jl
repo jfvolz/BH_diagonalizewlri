@@ -3,10 +3,8 @@ Create a sparse Hamiltonian matrix for a PBC/OBC BH chain in 1D.
 
     H = -T \\sum_{<i, j>} (b_i^\\dagger b_j + b_i b_j^\\dagger) + (U/2) \\sum_i n_i (n_i - 1)
 """
-function sparse_hamiltonian(basis::AbstractSzbasis, T::Float64, U::Float64; boundary=:PBC)
-    # Boundary conditions should be :PBC or :OBC.
-
-    end_site = boundary == :PBC ? basis.K : basis.K - 1
+function sparse_hamiltonian(basis::AbstractSzbasis, T::Float64, U::Float64; boundary::BdryCond=PBC)
+    end_site = boundary == PBC ? basis.K : basis.K - 1
 
     rows = Int64[]
     cols = Int64[]
