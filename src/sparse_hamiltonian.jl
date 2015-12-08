@@ -1,7 +1,12 @@
-# Create the full Hamiltonian matrix for a PBC/OBC chain in 1D.
-# H = -T \sum_<ij> (b+ib-j + b-ib+j) + U/2 \sum_i n_i(n_i-1)
-function CreateSparseHam(basis::AbstractSzbasis, T::Float64, U::Float64; boundary=:PBC)
+"""
+Create a sparse Hamiltonian matrix for a PBC/OBC BH chain in 1D.
+
+    H = -T \\sum_{<i, j>} (b_i^\\dagger b_j + b_i b_j^\\dagger) + (U/2) \\sum_i n_i (n_i - 1)
+"""
+function sparse_hamiltonian(basis::AbstractSzbasis, T::Float64, U::Float64; boundary=:PBC)
     # Boundary conditions should be :PBC or :OBC.
+
+    M = basis.K
 
     I = Int64[] # empty arrays for sparse Hamiltonian
     J = Int64[]

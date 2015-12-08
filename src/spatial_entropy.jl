@@ -1,19 +1,21 @@
-# Calculate both the spatial and the operational entanglement entropies of a
-# region A, using the SVD. The latter is the "entanglement of particles"
-# introduced by Wiseman and Vaccaro in 2003.
-function SpatialEE_SVD(N::Int, M::Int, A, d::Vector{Float64})
-    B = setdiff(1:M, A)
+"""
+Calculate both the spatial and the operational entanglement entropies of a
+region A, using the SVD. The latter is the "entanglement of particles"
+introduced by Wiseman and Vaccaro in 2003.
+"""
+function spatial_entropy(basis::AbstractSzbasis, A, d::Vector{Float64})
+    B = setdiff(1:basis.K, A)
 
     # Matrices to SVD
     Amatrices = []
-    for i=0:N
+    for i=0:basis.N
         DimA = num_vectors(basis, i, length(A))
-        DimB = num_vectors(basis, N-i, length(B))
+        DimB = num_vectors(basis, basis.N-i, length(B))
 
         push!(Amatrices, zeros(Float64, DimA, DimB))
     end
 
-    norms = zeros(Float64, N+1)
+    norms = zeros(Float64, basis.N+1)
 
     for (i, bra) in enumerate(basis)
         braA = sub(bra, A)
@@ -58,4 +60,4 @@ function SpatialEE_SVD(N::Int, M::Int, A, d::Vector{Float64})
     S2_sp, S2_op
 end
 
-SpatialEE_SVD(N::Int, M::Int, Asize::Int, d::Vector{Float64}) = SpatialEE_SVD(N, M, 1:Asize, d)
+spatial_entropy(basis::AbstractSzbasis, Asize::Int, d::Vector{Float64}) = spatial_entropy(basis, 1:Asize, d)

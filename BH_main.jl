@@ -1,5 +1,8 @@
 # Renyi entanglement entropy of Bose-Hubbard chains in 1D.
 
+push!(LOAD_PATH, joinpath(dirname(@__FILE__), "src"))
+using BoseHubbardDiagonalize
+
 using ArgParse
 using JeszenszkiBasis
 
@@ -77,10 +80,6 @@ const boundary = c[:boundary] === nothing ? :PBC : c[:boundary]
 # Size of region A
 const Asize = c[:ee]
 
-include("BH_sparseHam.jl")
-include("particleEntropy_SVD.jl")
-include("spatialEntropy_SVD.jl")
-
 if site_max === nothing
     const basis = Szbasis(M, N)
 else
@@ -100,18 +99,18 @@ open(output, "w") do f
 
     for U=c[:u_min]:c[:u_step]:c[:u_max]
         # Create the Hamiltonian
-        SparseHam = CreateSparseHam(basis, T, U, boundary=boundary)
+        H = sparse_hamiltonian(basis, T, U, boundary=boundary)
 
         # Perform the Lanczos diagonalization to obtain the lowest eigenvector
         # http://docs.julialang.org/en/release-0.3/stdlib/linalg/?highlight=lanczos
-        d = eigs(SparseHam, nev=1, which=:SR)
+        d = eigs(H, nev=1, which=:SR)
         wf = vec(d[2])
 
         # Calculate the second Renyi entropy
-        s2_particle = ParticleEE_SVD(N, M, Asize, wf)
-        s2_spatial, s2_operational = SpatialEE_SVD(N, M, Asize, wf)
+        s2_particle = particle_entropy(basis, Asize, wf)
+        s2_spatial, s2_operational = spatial_entropy(basis, Asize, wf)
 
-        write(f, join((U, d[1][1], s2_particle, s2_spatial, s2_operational), " "), "\n")
+        write(f, "$(U) $(d[1][1]) $(s2_particle) $(s2_spatial) $(s2_operational)\n")
         flush(f)
     end
 end

@@ -1,8 +1,9 @@
-# Calculate the particle entanglement entropy for a subset A, using the SVD.
-function ParticleEE_SVD(N::Int, M::Int, Asize::Int, d::Vector{Float64})
-    # Dimension of the total Hilbert space
-    D = length(d)
-    Bsize = N - Asize
+"""
+Calculate the particle entanglement entropy for a subset A, using the SVD.
+"""
+function particle_entropy(basis::AbstractSzbasis, Asize::Int, d::Vector{Float64})
+    M = basis.K
+    Bsize = basis.N - Asize
     # Dimensions of partition Hilbert spaces
     DimA = M^Asize
     DimB = M^Bsize
@@ -10,7 +11,7 @@ function ParticleEE_SVD(N::Int, M::Int, Asize::Int, d::Vector{Float64})
     # Matrix to SVD
     Amatrix = zeros(Float64, DimA, DimB)
 
-    fN = factorial(N)
+    fN = factorial(basis.N)
     occupA = Array(Int, M)
     occup = Array(Int, M)
 
