@@ -1,10 +1,17 @@
 """
+Number of links for the boundary conditions.
+"""
+num_links(basis::AbstractSzbasis, boundary::BdryCond) = boundary == PBC ? basis.K : basis.K - 1
+
+"""
 Create a sparse Hamiltonian matrix for a PBC/OBC BH chain in 1D.
 
-    H = -T \\sum_{<i, j>} (b_i^\\dagger b_j + b_i b_j^\\dagger) + (U/2) \\sum_i n_i (n_i - 1)
+    H = -\\sum_{<i, j>} t_{i,j} (b_i^\\dagger b_j + b_i b_j^\\dagger) + (U/2) \\sum_i n_i (n_i - 1)
 """
-function sparse_hamiltonian(basis::AbstractSzbasis, T::Float64, U::Float64; boundary::BdryCond=PBC)
-    end_site = boundary == PBC ? basis.K : basis.K - 1
+function sparse_hamiltonian(basis::AbstractSzbasis, Ts, U::Float64; boundary::BdryCond=PBC)
+    end_site = num_links(basis, boundary)
+
+    length(Ts) == end_site || error("Incorrect number of Ts: $(length(Ts)) != $(end_site)")
 
     rows = Int64[]
     cols = Int64[]
@@ -32,7 +39,7 @@ function sparse_hamiltonian(basis::AbstractSzbasis, T::Float64, U::Float64; boun
                     if ket in basis
                         push!(rows, i)
                         push!(cols, serial_num(basis, ket))
-                        push!(elements, T * sqrt(bra[site1]) * sqrt(bra[site2]+1))
+                        push!(elements, Ts[j] * sqrt(bra[site1]) * sqrt(bra[site2]+1))
                     end
                 end
             end
@@ -40,4 +47,8 @@ function sparse_hamiltonian(basis::AbstractSzbasis, T::Float64, U::Float64; boun
     end
 
     sparse(rows, cols, elements, length(basis), length(basis))
+end
+
+function sparse_hamiltonian(basis::AbstractSzbasis, T::Float64, U::Float64; boundary::BdryCond=PBC)
+    sparse_hamiltonian(basis, fill(T, num_links(basis, boundary)), U, boundary=boundary)
 end
