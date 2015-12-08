@@ -43,23 +43,28 @@ add_arg_group(s, "boundary conditions")
         constant = OBC
         default = PBC
 end
-add_arg_group(s, "BH parameter range")
+add_arg_group(s, "BH parameters")
 @add_arg_table s begin
     "--u-min"
         metavar = "U"
-        help = "minimum U/t"
+        help = "minimum U"
         arg_type = Float64
         default = 1.0
     "--u-max"
         metavar = "U"
-        help = "maximum U/t"
+        help = "maximum U"
         arg_type = Float64
         default = 20.0
     "--u-step"
         metavar = "U"
-        help = "U/t step"
+        help = "U step"
         arg_type = Float64
         default = 0.5
+    "--t"
+        metavar = "t"
+        help = "t value"
+        arg_type = Float64
+        default = 1.0
 end
 add_arg_group(s, "entanglement entropy")
 @add_arg_table s begin
@@ -90,20 +95,17 @@ else
     const basis = RestrictedSzbasis(M, N, site_max)
 end
 
-# Hamiltonian parameters
-T = -1.0
-
 open(output, "w") do f
     if site_max === nothing
         write(f, "# M=$(M), N=$(N), $(boundary)\n")
     else
         write(f, "# M=$(M), N=$(N), max=$(site_max), $(boundary)\n")
     end
-    write(f, "# U/t E0 S2(n=$(Asize)) S2(l=$(Asize)) Eop(l=$(Asize))\n")
+    write(f, "# U/t E0/t S2(n=$(Asize)) S2(l=$(Asize)) Eop(l=$(Asize))\n")
 
     for U=c[:u_min]:c[:u_step]:c[:u_max]
         # Create the Hamiltonian
-        H = sparse_hamiltonian(basis, T, U, boundary=boundary)
+        H = sparse_hamiltonian(basis, c[:t], U, boundary=boundary)
 
         # Perform the Lanczos diagonalization to obtain the lowest eigenvector
         # http://docs.julialang.org/en/release-0.3/stdlib/linalg/?highlight=lanczos
@@ -114,7 +116,7 @@ open(output, "w") do f
         s2_particle = particle_entropy(basis, Asize, wf)
         s2_spatial, s2_operational = spatial_entropy(basis, Asize, wf)
 
-        write(f, "$(U) $(d[1][1]) $(s2_particle) $(s2_spatial) $(s2_operational)\n")
+        write(f, "$(U/c[:t]) $(d[1][1]/c[:t]) $(s2_particle) $(s2_spatial) $(s2_operational)\n")
         flush(f)
     end
 end

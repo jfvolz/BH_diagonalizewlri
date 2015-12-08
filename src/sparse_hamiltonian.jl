@@ -39,7 +39,7 @@ function sparse_hamiltonian(basis::AbstractSzbasis, Ts, U::Float64; boundary::Bd
                     if ket in basis
                         push!(rows, i)
                         push!(cols, serial_num(basis, ket))
-                        push!(elements, Ts[j] * sqrt(bra[site1]) * sqrt(bra[site2]+1))
+                        push!(elements, -Ts[j] * sqrt(bra[site1]) * sqrt(bra[site2]+1))
                     end
                 end
             end
