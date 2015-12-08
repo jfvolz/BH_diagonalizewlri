@@ -6,68 +6,40 @@ Create a sparse Hamiltonian matrix for a PBC/OBC BH chain in 1D.
 function sparse_hamiltonian(basis::AbstractSzbasis, T::Float64, U::Float64; boundary=:PBC)
     # Boundary conditions should be :PBC or :OBC.
 
-    M = basis.K
+    end_site = boundary == :PBC ? basis.K : basis.K - 1
 
-    I = Int64[] # empty arrays for sparse Hamiltonian
-    J = Int64[]
-    Element = Float64[]
+    rows = Int64[]
+    cols = Int64[]
+    elements = Float64[]
 
     for (i, bra) in enumerate(basis)
         # Diagonal part
         Usum = 0
-        for j=1:M
+        for j=1:basis.K
             Usum += bra[j] * (bra[j]-1)
         end
-        # Sparse Matrix creation
-        push!(I, i) # row
-        push!(J, i) # column
-        push!(Element, U * Usum/2.) # Diagonal operators
+        push!(rows, i)
+        push!(cols, i)
+        push!(elements, U * Usum/2.)
 
         # Off-diagonal part
-        end_site = boundary == :PBC ? M : M - 1
-
         for j=1:end_site
-            site1 = j
-            if j != M
-                site2 = j+1
-            else
-                site2 = 1
-            end
-
-            ket1 = copy(bra)
-            A1 = ket1[site1]-1 # We're going to check for annihilation of the state
-            A2 = ket1[site2]-1
-
-            # A^dagger A
-            if A2 >=0
-                ket1[site1] += 1
-                ket1[site2] -= 1
-                if ket1 in basis
-                    val1 = sqrt(bra[site1]+1) * sqrt(bra[site2]) # sqrt of occupation
-                    # Now find the position of the kets using their Serial Number
-                    b = serial_num(basis, ket1)
-                    push!(I, i) # row
-                    push!(J, b) # column
-                    push!(Element, T * val1)
-                end
-            end
-
-            ket2 = copy(bra)
-            # A A^dagger
-            if A1 >=0
-                ket2[site1] -= 1
-                ket2[site2] += 1
-                if ket2 in basis
-                    val2 = sqrt(bra[site1]) * sqrt(bra[site2]+1) # sqrt of occupation
-                    # Now find the position of the kets using their Serial Number
-                    b = serial_num(basis, ket2)
-                    push!(I, i) # row
-                    push!(J, b) # column
-                    push!(Element, T * val2)
+            j_next = j % basis.K + 1
+            # Tunnel right, tunnel left.
+            for (site1, site2) in [(j, j_next), (j_next, j)]
+                if bra[site1] > 0
+                    ket = copy(bra)
+                    ket[site1] -= 1
+                    ket[site2] += 1
+                    if ket in basis
+                        push!(rows, i)
+                        push!(cols, serial_num(basis, ket))
+                        push!(elements, T * sqrt(bra[site1]) * sqrt(bra[site2]+1))
+                    end
                 end
             end
         end
     end
 
-    sparse(I, J, Element, length(basis), length(basis)) # create the actual sparse matrix
+    sparse(rows, cols, elements, length(basis), length(basis))
 end
