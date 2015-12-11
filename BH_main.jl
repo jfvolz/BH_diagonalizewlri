@@ -59,7 +59,13 @@ add_arg_group(s, "BH parameters")
         metavar = "U"
         help = "U step"
         arg_type = Float64
-        default = 0.5
+    "--u-num"
+        metavar = "N"
+        help = "number of U"
+        arg_type = Int
+    "--u-log"
+        help = "use logarithmic scale for U"
+        action = :store_true
     "--t"
         metavar = "t"
         help = "t value"
@@ -89,6 +95,30 @@ const boundary = c[:boundary]
 # Size of region A
 const Asize = c[:ee]
 
+if c[:u_log] && c[:u_num] === nothing
+    println("--u-log must be used with --u-num")
+    exit(1)
+end
+
+if c[:u_step] === nothing
+    if c[:u_num] === nothing
+        U_range = c[:u_min]:0.5:c[:u_max]
+    else
+        if c[:u_log]
+            U_range = logspace(c[:u_min], c[:u_max], c[:u_num])
+        else
+            U_range = linspace(c[:u_min], c[:u_max], c[:u_num])
+        end
+    end
+else
+    if c[:u_num] === nothing
+        U_range = c[:u_min]:c[:u_step]:c[:u_max]
+    else
+        println("--u-step and --u-num may not both be supplied")
+        exit(1)
+    end
+end
+
 if site_max === nothing
     const basis = Szbasis(M, N)
 else
@@ -103,7 +133,7 @@ open(output, "w") do f
     end
     write(f, "# U/t E0/t S2(n=$(Asize)) S2(l=$(Asize)) Eop(l=$(Asize))\n")
 
-    for U=c[:u_min]:c[:u_step]:c[:u_max]
+    for U in U_range
         # Create the Hamiltonian
         H = sparse_hamiltonian(basis, c[:t], U, boundary=boundary)
 
