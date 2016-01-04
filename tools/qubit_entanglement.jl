@@ -189,8 +189,8 @@ open(output, "w") do f
         rho_A = ptrace(rho_AB)
 
         # Various entanglement measures.
-        I2 = S_renyi(rho_A) - 0.5 * S_renyi(rho_AB)
-        Ivn = S_vn(rho_A) - 0.5 * S_vn(rho_AB)
+        I2 = mutinf(rho_AB, S_renyi)
+        Ivn = mutinf(rho_AB)
         EF = formation(rho_AB)
         EN = negativity(rho_AB)
         pur_AB = purity(rho_AB)
