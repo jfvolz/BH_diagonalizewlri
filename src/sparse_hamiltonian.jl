@@ -6,12 +6,13 @@ num_links(basis::AbstractSzbasis, boundary::BdryCond) = boundary == PBC ? basis.
 """
 Create a sparse Hamiltonian matrix for a PBC/OBC BH chain in 1D.
 
-    H = -\\sum_{<i, j>} t_{i,j} (b_i^\\dagger b_j + b_i b_j^\\dagger) + (U/2) \\sum_i n_i (n_i - 1)
+    H = -\\sum_{<i, j>} t_{i,j} (b_i^\\dagger b_j + b_i b_j^\\dagger) + (U/2) \\sum_i n_i (n_i - 1) - \\sum_i \\mu_i n_i
 """
-function sparse_hamiltonian(basis::AbstractSzbasis, Ts, U::Float64; boundary::BdryCond=PBC)
+function sparse_hamiltonian(basis::AbstractSzbasis, Ts::AbstractVector{Float64}, mus::AbstractVector{Float64}, U::Float64; boundary::BdryCond=PBC)
     end_site = num_links(basis, boundary)
 
     length(Ts) == end_site || error("Incorrect number of Ts: $(length(Ts)) != $(end_site)")
+    length(mus) == basis.K || error("Incorrect number of mus: $(length(mus)) != $(basis.K)")
 
     rows = Int64[]
     cols = Int64[]
@@ -20,12 +21,14 @@ function sparse_hamiltonian(basis::AbstractSzbasis, Ts, U::Float64; boundary::Bd
     for (i, bra) in enumerate(basis)
         # Diagonal part
         Usum = 0
+        musum = 0
         for j=1:basis.K
             Usum += bra[j] * (bra[j]-1)
+            musum += mus[j] * bra[j]
         end
         push!(rows, i)
         push!(cols, i)
-        push!(elements, U * Usum/2.)
+        push!(elements, U * Usum/2. - musum)
 
         # Off-diagonal part
         for j=1:end_site
@@ -47,6 +50,14 @@ function sparse_hamiltonian(basis::AbstractSzbasis, Ts, U::Float64; boundary::Bd
     end
 
     sparse(rows, cols, elements, length(basis), length(basis))
+end
+
+function sparse_hamiltonian(basis::AbstractSzbasis, Ts::AbstractVector{Float64}, U::Float64; boundary::BdryCond=PBC)
+    sparse_hamiltonian(basis, Ts, zeros(basis.K), U, boundary=boundary)
+end
+
+function sparse_hamiltonian(basis::AbstractSzbasis, T::Float64, mus::AbstractVector{Float64}, U::Float64; boundary::BdryCond=PBC)
+    sparse_hamiltonian(basis, fill(T, num_links(basis, boundary)), mus, U, boundary=boundary)
 end
 
 function sparse_hamiltonian(basis::AbstractSzbasis, T::Float64, U::Float64; boundary::BdryCond=PBC)
