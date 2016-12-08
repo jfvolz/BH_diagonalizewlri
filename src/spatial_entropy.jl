@@ -18,8 +18,8 @@ function spatial_entropy(basis::AbstractSzbasis, A, d::Vector{Float64})
     norms = zeros(Float64, basis.N+1)
 
     for (i, bra) in enumerate(basis)
-        braA = sub(bra, A)
-        braB = sub(bra, B)
+        braA = view(bra, A)
+        braB = view(bra, B)
 
         row = serial_num(basis, length(A), sum(braA), braA)
         col = serial_num(basis, length(B), sum(braB), braB)
