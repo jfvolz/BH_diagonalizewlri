@@ -31,6 +31,9 @@ add_arg_group(s, "output settings")
     "--no-progress"
         help = "hide progress bar"
         action = :store_true
+    "--verbose", "-v"
+        help = "show extra information"
+        action = :store_true
 end
 add_arg_group(s, "boundary conditions")
 @add_arg_table s begin
@@ -142,6 +145,10 @@ else
     const basis = RestrictedSzbasis(M, N, site_max)
 end
 
+# Diagonalization diagnostics
+const niters = zeros(Int, length(U_range))
+const nmults = zeros(Int, length(U_range))
+
 open(output, "w") do f
     if site_max === nothing
         write(f, "# M=$(M), N=$(N), $(boundary)\n")
@@ -150,7 +157,7 @@ open(output, "w") do f
     end
     write(f, "# U/t E0/t S2(n=$(Asize)) S2(l=$(Asize)) Eop(l=$(Asize))\n")
 
-    @showprogress for U in U_range
+    @showprogress for (i, U) in enumerate(U_range)
         # Create the Hamiltonian
         H = sparse_hamiltonian(basis, c[:t], U, boundary=boundary)
 
@@ -158,6 +165,8 @@ open(output, "w") do f
         # http://docs.julialang.org/en/release-0.3/stdlib/linalg/?highlight=lanczos
         d = eigs(H, nev=1, which=:SR)
         wf = vec(d[2])
+        niters[i] = d[4]
+        nmults[i] = d[5]
 
         # Calculate the second Renyi entropy
         s2_particle = particle_entropy(basis, Asize, wf)
@@ -166,4 +175,10 @@ open(output, "w") do f
         write(f, "$(U/c[:t]) $(d[1][1]/c[:t]) $(s2_particle) $(s2_spatial) $(s2_operational)\n")
         flush(f)
     end
+end
+
+if c[:verbose]
+    # Output diagnostics
+    println("niter min/med/max = $(minimum(niters))/$(ceil(Int, median(niters)))/$(maximum(niters))")
+    println("nmult min/med/max = $(minimum(nmults))/$(ceil(Int, median(nmults)))/$(maximum(nmults))")
 end
