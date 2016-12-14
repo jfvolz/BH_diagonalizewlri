@@ -165,6 +165,7 @@ open(output, "w") do f
         d = eigs(H, nev=1, which=:SR)
         E0 = d[1][1]
         wf = vec(d[2])
+        d[3] == 1 || warn("Diagonalization did not converge")
         niters[i] = d[4]
         nmults[i] = d[5]
 
