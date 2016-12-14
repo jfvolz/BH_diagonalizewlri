@@ -145,6 +145,9 @@ else
     const basis = RestrictedSzbasis(M, N, site_max)
 end
 
+# Initial vector for diagonalization
+const v0 = ones(Float64, length(basis))
+
 # Diagonalization diagnostics
 const niters = zeros(Int, length(U_range))
 const nmults = zeros(Int, length(U_range))
@@ -162,12 +165,15 @@ open(output, "w") do f
         H = sparse_hamiltonian(basis, c[:t], U, boundary=boundary)
 
         # Perform the Lanczos diagonalization to obtain the lowest eigenvector
-        d = eigs(H, nev=1, which=:SR)
+        d = eigs(H, nev=1, which=:SR, v0=v0)
         E0 = d[1][1]
         wf = vec(d[2])
         d[3] == 1 || warn("Diagonalization did not converge")
         niters[i] = d[4]
         nmults[i] = d[5]
+
+        # Use the current ground state for the next diagonalization
+        v0 .= wf
 
         # Calculate the second Renyi entropy
         s2_particle = particle_entropy(basis, Asize, wf)
