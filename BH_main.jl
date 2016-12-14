@@ -162,8 +162,8 @@ open(output, "w") do f
         H = sparse_hamiltonian(basis, c[:t], U, boundary=boundary)
 
         # Perform the Lanczos diagonalization to obtain the lowest eigenvector
-        # http://docs.julialang.org/en/release-0.3/stdlib/linalg/?highlight=lanczos
         d = eigs(H, nev=1, which=:SR)
+        E0 = d[1][1]
         wf = vec(d[2])
         niters[i] = d[4]
         nmults[i] = d[5]
@@ -172,7 +172,7 @@ open(output, "w") do f
         s2_particle = particle_entropy(basis, Asize, wf)
         s2_spatial, s2_operational = spatial_entropy(basis, Asize, wf)
 
-        write(f, "$(U/c[:t]) $(d[1][1]/c[:t]) $(s2_particle) $(s2_spatial) $(s2_operational)\n")
+        write(f, "$(U/c[:t]) $(E0/c[:t]) $(s2_particle) $(s2_spatial) $(s2_operational)\n")
         flush(f)
     end
 end
