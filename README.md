@@ -16,6 +16,7 @@ Tested with Julia 0.5.
 ### Optional
 
 * [LsqFit](https://github.com/JuliaOpt/LsqFit.jl) (`Pkg.add("LsqFit")`)
+* [ProgressMeter](https://github.com/timholy/ProgressMeter.jl) (`Pkg.add("ProgressMeter")`)
 * [Qutilities](https://github.com/0/Qutilities.jl) (`Pkg.clone("https://github.com/0/Qutilities.jl.git")`)
 
 

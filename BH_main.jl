@@ -17,14 +17,20 @@ s.autofix_names = true
         help = "number of particles"
         arg_type = Int
         required = true
-    "--out"
-        metavar = "FILE"
-        help = "path to output file"
-        required = true
     "--site-max"
         metavar = "N"
         help = "site occupation restriction"
         arg_type = Int
+end
+add_arg_group(s, "output settings")
+@add_arg_table s begin
+    "--out"
+        metavar = "FILE"
+        help = "path to output file"
+        required = true
+    "--no-progress"
+        help = "hide progress bar"
+        action = :store_true
 end
 add_arg_group(s, "boundary conditions")
 @add_arg_table s begin
@@ -82,6 +88,17 @@ add_arg_group(s, "entanglement entropy")
 end
 c = parsed_args = parse_args(ARGS, s, as_symbols=true)
 
+if c[:no_progress]
+    include("utils/fakeprogress.jl")
+else
+    try
+        using ProgressMeter
+    catch
+        include("utils/fakeprogress.jl")
+        warn("Install ProgressMeter for a progress bar or use --no-progress to silence this message.")
+    end
+end
+
 # Number of sites
 const M = c[:M]
 # Number of particles
@@ -133,7 +150,7 @@ open(output, "w") do f
     end
     write(f, "# U/t E0/t S2(n=$(Asize)) S2(l=$(Asize)) Eop(l=$(Asize))\n")
 
-    for U in U_range
+    @showprogress for U in U_range
         # Create the Hamiltonian
         H = sparse_hamiltonian(basis, c[:t], U, boundary=boundary)
 
