@@ -3,7 +3,7 @@ Calculate both the spatial and the operational entanglement entropies of a
 region A, using the SVD. The latter is the "entanglement of particles"
 introduced by Wiseman and Vaccaro in 2003.
 """
-function spatial_entropy(basis::AbstractSzbasis, A, d::Vector{Float64})
+function spatial_entropy{T<:Number}(basis::AbstractSzbasis, A, d::Vector{T})
     B = setdiff(1:basis.K, A)
 
     # Matrices to SVD
@@ -12,7 +12,7 @@ function spatial_entropy(basis::AbstractSzbasis, A, d::Vector{Float64})
         DimA = num_vectors(basis, i, length(A))
         DimB = num_vectors(basis, basis.N-i, length(B))
 
-        push!(Amatrices, zeros(Float64, DimA, DimB))
+        push!(Amatrices, zeros(T, DimA, DimB))
     end
 
     norms = zeros(Float64, basis.N+1)
@@ -25,7 +25,7 @@ function spatial_entropy(basis::AbstractSzbasis, A, d::Vector{Float64})
         col = serial_num(basis, length(B), sum(braB), braB)
 
         Amatrices[1 + sum(braA)][row, col] = d[i]
-        norms[1 + sum(braA)] += d[i]^2
+        norms[1 + sum(braA)] += abs2(d[i])
     end
 
     norm_err = abs(sum(norms) - 1.0)
@@ -63,4 +63,4 @@ function spatial_entropy(basis::AbstractSzbasis, A, d::Vector{Float64})
     S2_sp, S2_op
 end
 
-spatial_entropy(basis::AbstractSzbasis, Asize::Int, d::Vector{Float64}) = spatial_entropy(basis, 1:Asize, d)
+spatial_entropy{T<:Number}(basis::AbstractSzbasis, Asize::Int, d::Vector{T}) = spatial_entropy(basis, 1:Asize, d)

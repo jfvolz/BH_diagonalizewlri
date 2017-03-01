@@ -1,10 +1,10 @@
 """
 Calculate the particle entanglement entropy for a subset A, using the SVD.
 """
-function particle_entropy(basis::AbstractSzbasis, Asize::Int, d::Vector{Float64})
+function particle_entropy{T<:Number}(basis::AbstractSzbasis, Asize::Int, d::Vector{T})
     basisA, basisB = particle_entropy_bases(basis, Asize)
     # Matrix to SVD
-    Amatrix = zeros(Float64, length(basisA), length(basisB))
+    Amatrix = zeros(T, length(basisA), length(basisB))
 
     for (i, braA) in enumerate(basisA)
         for (j, braB) in enumerate(basisB)
