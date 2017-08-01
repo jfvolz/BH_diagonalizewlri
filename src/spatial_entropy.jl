@@ -6,6 +6,9 @@ introduced by Wiseman and Vaccaro in 2003.
 function spatial_entropy{T<:Number}(basis::AbstractSzbasis, A, d::Vector{T})
     B = setdiff(1:basis.K, A)
 
+    isempty(A) && return 0.0, 0.0
+    isempty(B) && return 0.0, 0.0
+
     # Matrices to SVD
     Amatrices = []
     for i in 0:basis.N
