@@ -24,7 +24,7 @@ function particle_entropy{T<:Number}(basis::AbstractSzbasis, Asize::Int, d::Vect
     err = abs(sum(S.^2) - 1.0)
 
     if err > 1e-12
-        warn("RDM eigenvalue error ", err)
+        warn("RDM eigenvalue error: $(err)")
     end
 
     -log(sum(S.^4))

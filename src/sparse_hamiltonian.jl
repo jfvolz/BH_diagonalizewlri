@@ -1,7 +1,7 @@
 """
 Number of links for the boundary conditions.
 """
-num_links(basis::AbstractSzbasis, boundary::BdryCond) = boundary == PBC ? basis.K : basis.K - 1
+num_links(basis::AbstractSzbasis, boundary::BdryCond) = boundary == PBC ? basis.K : (basis.K - 1)
 
 """
 Create a sparse Hamiltonian matrix for a PBC/OBC BH chain in 1D.
@@ -21,18 +21,18 @@ function sparse_hamiltonian(basis::AbstractSzbasis, Ts::AbstractVector{Float64},
     for (i, bra) in enumerate(basis)
         # Diagonal part
         Usum = 0
-        musum = 0
-        for j=1:basis.K
+        musum = 0.0
+        for j in 1:basis.K
             Usum += bra[j] * (bra[j]-1)
             musum += mus[j] * bra[j]
         end
         push!(rows, i)
         push!(cols, i)
-        push!(elements, U * Usum/2. - musum)
+        push!(elements, U*Usum/2.0 - musum)
 
         # Off-diagonal part
-        for j=1:end_site
-            j_next = j % basis.K + 1
+        for j in 1:end_site
+            j_next = j%basis.K + 1
             # Tunnel right, tunnel left.
             for (site1, site2) in [(j, j_next), (j_next, j)]
                 if bra[site1] > 0

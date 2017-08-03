@@ -142,7 +142,7 @@ else
     const basis = RestrictedSzbasis(M, N, site_max)
 end
 
-println(join([i in qubit_sites_A ? "A" : i in qubit_sites_B ? "B" : "C" for i=1:M], " "))
+println(join([i in qubit_sites_A ? "A" : (i in qubit_sites_B ? "B" : "C") for i in 1:M], " "))
 
 open(output, "w") do f
     if site_max === nothing
@@ -158,7 +158,7 @@ open(output, "w") do f
         wf = vec(d[2])
 
         # Weight of the projected subspace.
-        P = 0.
+        P = 0.0
         # Reduced density matrix.
         rho_AB = zeros(Float64, 4, 4)
         for (i, v1) in enumerate(basis)
@@ -175,7 +175,7 @@ open(output, "w") do f
                 rho_AB[row, col] += wf[i] * wf[j]
             end
         end
-        if P == 0.
+        if P == 0.0
             error("Empty subspace")
         end
         rho_AB /= P

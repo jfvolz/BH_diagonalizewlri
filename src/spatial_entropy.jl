@@ -8,7 +8,7 @@ function spatial_entropy{T<:Number}(basis::AbstractSzbasis, A, d::Vector{T})
 
     # Matrices to SVD
     Amatrices = []
-    for i=0:basis.N
+    for i in 0:basis.N
         DimA = num_vectors(basis, i, length(A))
         DimB = num_vectors(basis, basis.N-i, length(B))
 
@@ -31,7 +31,7 @@ function spatial_entropy{T<:Number}(basis::AbstractSzbasis, A, d::Vector{T})
     norm_err = abs(sum(norms) - 1.0)
 
     if norm_err > 1e-12
-        warn("norm error ", norm_err)
+        warn("norm error: $(norm_err)")
     end
 
     Ss_raw = [svdvals(Amatrix) for Amatrix in Amatrices]
@@ -41,7 +41,7 @@ function spatial_entropy{T<:Number}(basis::AbstractSzbasis, A, d::Vector{T})
     err_sp = abs(sum(S_sp.^2) - 1.0)
 
     if err_sp > 1e-12
-        warn("RDM eigenvalue error ", err_sp)
+        warn("RDM eigenvalue error: $(err_sp)")
     end
 
     S2_sp = -log(sum(S_sp.^4))
@@ -51,7 +51,7 @@ function spatial_entropy{T<:Number}(basis::AbstractSzbasis, A, d::Vector{T})
     errs_op = [abs(sum(S.^2) - 1.0) for S in Ss_op if !isempty(S)]
 
     if any(errs_op .> 1e-12)
-        warn("RDM eigenvalue error ", maximum(errs_op))
+        warn("RDM eigenvalue error $(maximum(errs_op))")
     end
 
     S2_op = 0.0

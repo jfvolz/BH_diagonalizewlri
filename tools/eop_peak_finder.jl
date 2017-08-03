@@ -93,7 +93,7 @@ else
 end
 
 # Fitting model.
-model(x, p) = p[1] + p[2] * x + p[3] * x.^2
+model(x, p) = p[1] + p[2]*x + p[3]*x.^2
 
 open(output, "w") do f
     if site_max === nothing
