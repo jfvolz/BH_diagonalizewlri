@@ -8,6 +8,13 @@ Create a sparse Hamiltonian matrix for a PBC/OBC BH chain in 1D.
 
     H = -\\sum_{<i, j>} t_{i,j} (b_i^\\dagger b_j + b_i b_j^\\dagger) + (U/2) \\sum_i n_i (n_i - 1) - \\sum_i \\mu_i n_i
 """
+# Function that defines long range potential
+
+function V(r::Int64)
+    3/r
+end
+
+
 function sparse_hamiltonian(basis::AbstractSzbasis, Ts::AbstractVector{Float64}, mus::AbstractVector{Float64}, U::Float64; boundary::BdryCond=PBC)
     end_site = num_links(basis, boundary)
 
@@ -19,16 +26,23 @@ function sparse_hamiltonian(basis::AbstractSzbasis, Ts::AbstractVector{Float64},
     elements = Float64[]
 
     for (i, bra) in enumerate(basis)
+        print(bra)
         # Diagonal part
         Usum = 0
         musum = 0.0
         for j in 1:basis.K
-            Usum += bra[j] * (bra[j]-1)
+            for r in 0:(basis.K-j)
+                if r == 0
+                    Usum += U / 2.0 * bra[j] * (bra[j]-1)
+                else
+                    Usum += V(r) * bra[j] * bra[j+r]
+                end
             musum += mus[j] * bra[j]
+          end
         end
         push!(rows, i)
         push!(cols, i)
-        push!(elements, U*Usum/2.0 - musum)
+        push!(elements, Usum - musum)
 
         # Off-diagonal part
         for j in 1:end_site
@@ -51,6 +65,8 @@ function sparse_hamiltonian(basis::AbstractSzbasis, Ts::AbstractVector{Float64},
 
     sparse(rows, cols, elements, length(basis), length(basis))
 end
+
+
 
 function sparse_hamiltonian(basis::AbstractSzbasis, Ts::AbstractVector{Float64}, U::Float64; boundary::BdryCond=PBC)
     sparse_hamiltonian(basis, Ts, zeros(basis.K), U, boundary=boundary)
