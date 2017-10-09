@@ -26,7 +26,6 @@ function sparse_hamiltonian(basis::AbstractSzbasis, Ts::AbstractVector{Float64},
     elements = Float64[]
 
     for (i, bra) in enumerate(basis)
-        print(bra)
         # Diagonal part
         Usum = 0
         musum = 0.0
