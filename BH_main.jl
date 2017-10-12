@@ -21,6 +21,15 @@ s.autofix_names = true
         metavar = "N"
         help = "site occupation restriction"
         arg_type = Int
+    "Vexp"
+        help = "long range potential exponent"
+        arg_type = Int
+        required = true
+    "Vs"
+        help = "long range potential scalar"
+        arg_type = Int
+        required = true
+
 end
 add_arg_group(s, "output settings")
 @add_arg_table s begin
@@ -152,17 +161,21 @@ const v0 = ones(Float64, length(basis))
 const niters = zeros(Int, length(U_range))
 const nmults = zeros(Int, length(U_range))
 
+# Vars for long range potential
+const Vexponent = c[:Vexp]
+const Vscale = c[:Vs]
+
 open(output, "w") do f
     if site_max === nothing
-        write(f, "# M=$(M), N=$(N), $(boundary)\n")
+        write(f, "# M=$(M), N=$(N), V=$(Vscale)/r^$(Vexponent), $(boundary)\n")
     else
-        write(f, "# M=$(M), N=$(N), max=$(site_max), $(boundary)\n")
+        write(f, "# M=$(M), N=$(N), V=$(Vscale)/r^$(Vexponent), max=$(site_max), $(boundary)\n")
     end
     write(f, "# U/t E0/t S2(n=$(Asize)) S2(l=$(Asize)) Eop(l=$(Asize))\n")
 
     @showprogress for (i, U) in enumerate(U_range)
         # Create the Hamiltonian
-        H = sparse_hamiltonian(basis, c[:t], U, boundary=boundary)
+        H = sparse_hamiltonian(basis, c[:t], U, Vexponent, Vscale, boundary=boundary)
 
         # Perform the Lanczos diagonalization to obtain the lowest eigenvector
         d = eigs(H, nev=1, which=:SR, v0=v0)
