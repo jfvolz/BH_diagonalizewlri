@@ -25,10 +25,6 @@ s.autofix_names = true
         help = "long range potential exponent"
         arg_type = Int
         required = true
-    "Vs"
-        help = "long range potential scalar"
-        arg_type = Int
-        required = true
 
 end
 add_arg_group(s, "output settings")
@@ -90,6 +86,19 @@ add_arg_group(s, "BH parameters")
         arg_type = Float64
         default = 1.0
 end
+add_arg_group(s, "BH parameters")
+@add_arg_table s begin
+    "--V-min"
+        metavar = "V"
+        help = "minimum V"
+        arg_type = Float64
+        default = -10.0
+    "--V-max"
+        metavar = "V"
+        help = "maximum V"
+        arg_type = Float64
+        default = 10.0
+end
 add_arg_group(s, "entanglement entropy")
 @add_arg_table s begin
     "--ee"
@@ -128,10 +137,10 @@ if c[:u_log] && c[:u_num] === nothing
     println("--u-log must be used with --u-num")
     exit(1)
 end
-
+V_range = c[:V_min]:0.1:c[:V_max]
 if c[:u_step] === nothing
     if c[:u_num] === nothing
-        U_range = c[:u_min]:0.5:c[:u_max]
+        U_range = 0.0:1.0:10.0
     else
         if c[:u_log]
             U_range = logspace(c[:u_min], c[:u_max], c[:u_num])
@@ -163,37 +172,38 @@ const nmults = zeros(Int, length(U_range))
 
 # Vars for long range potential
 const Vexponent = c[:Vexp]
-const Vscale = c[:Vs]
 
 open(output, "w") do f
     if site_max === nothing
-        write(f, "# M=$(M), N=$(N), V=$(Vscale)/r^$(Vexponent), $(boundary)\n")
+        write(f, "# M=$(M), N=$(N), V=V0/r^$(Vexponent), $(boundary)\n")
     else
-        write(f, "# M=$(M), N=$(N), V=$(Vscale)/r^$(Vexponent), max=$(site_max), $(boundary)\n")
+        write(f, "# M=$(M), N=$(N), V=V0/r^$(Vexponent), max=$(site_max), $(boundary)\n")
     end
-    write(f, "# U/t E0/t S2(n=$(Asize)) S2(l=$(Asize)) Eop(l=$(Asize))\n")
+    write(f, "# U/t V E0/t S2(n=$(Asize)) S2(l=$(Asize)) Eop(l=$(Asize))\n")
 
     @showprogress for (i, U) in enumerate(U_range)
-        # Create the Hamiltonian
-        H = sparse_hamiltonian(basis, c[:t], U, Vexponent, Vscale, boundary=boundary)
+        @showprogress for (j, V) in enumerate(V_range)
+            # Create the Hamiltonian
+            H = sparse_hamiltonian(basis, c[:t], U, Vexponent, V, boundary=boundary)
 
-        # Perform the Lanczos diagonalization to obtain the lowest eigenvector
-        d = eigs(H, nev=1, which=:SR, v0=v0)
-        E0 = d[1][1]
-        wf = vec(d[2])
-        d[3] == 1 || warn("Diagonalization did not converge")
-        niters[i] = d[4]
-        nmults[i] = d[5]
+            # Perform the Lanczos diagonalization to obtain the lowest eigenvector
+            d = eigs(H, nev=1, which=:SR, v0=v0)
+            E0 = d[1][1]
+            wf = vec(d[2])
+            d[3] == 1 || warn("Diagonalization did not converge")
+            niters[i] = d[4]
+            nmults[i] = d[5]
 
-        # Use the current ground state for the next diagonalization
-        v0 .= wf
+            # Use the current ground state for the next diagonalization
+            v0 .= wf
 
-        # Calculate the second Renyi entropy
-        s2_particle = particle_entropy(basis, Asize, wf)
-        s2_spatial, s2_operational = spatial_entropy(basis, Asize, wf)
+            # Calculate the second Renyi entropy
+            s2_particle = particle_entropy(basis, Asize, wf)
+            s2_spatial, s2_operational = spatial_entropy(basis, Asize, wf)
 
-        write(f, "$(U/c[:t]) $(E0/c[:t]) $(s2_particle) $(s2_spatial) $(s2_operational)\n")
-        flush(f)
+            write(f, "$(U/c[:t]) $(V) $(E0/c[:t]) $(s2_particle) $(s2_spatial) $(s2_operational)\n")
+            flush(f)
+        end
     end
 end
 

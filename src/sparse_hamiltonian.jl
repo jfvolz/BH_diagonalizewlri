@@ -10,12 +10,16 @@ Create a sparse Hamiltonian matrix for a PBC/OBC BH chain in 1D.
 """
 # Function that defines long range potential
 
-function V(r::Int64, Vexponent::Int64, Vscale::Int64)
-    Vscale/(r^Vexponent)
+function V(r::Int64, Vexponent::Int64, Vscale::Float64)
+    if Vexponent >= 0
+        Vscale/(r^Vexponent)
+    else
+        0
+    end
 end
 
 
-function sparse_hamiltonian(basis::AbstractSzbasis, Ts::AbstractVector{Float64}, mus::AbstractVector{Float64}, U::Float64, Vexponent::Int64, Vscale::Int64; boundary::BdryCond=PBC)
+function sparse_hamiltonian(basis::AbstractSzbasis, Ts::AbstractVector{Float64}, mus::AbstractVector{Float64}, U::Float64, Vexponent::Int64, Vscale::Float64; boundary::BdryCond=PBC)
     end_site = num_links(basis, boundary)
 
     length(Ts) == end_site || error("Incorrect number of Ts: $(length(Ts)) != $(end_site)")
@@ -33,6 +37,8 @@ function sparse_hamiltonian(basis::AbstractSzbasis, Ts::AbstractVector{Float64},
             for r in 0:(basis.K-j)
                 if r == 0
                     Usum += U / 2.0 * bra[j] * (bra[j]-1)
+                elseif r == 1
+                    Usum += Vscale * bra[j] * bra[j + 1]
                 else
                     Usum += V(r, Vexponent, Vscale) * bra[j] * bra[j+r]
                 end
@@ -60,6 +66,7 @@ function sparse_hamiltonian(basis::AbstractSzbasis, Ts::AbstractVector{Float64},
                 end
             end
         end
+
     end
 
     sparse(rows, cols, elements, length(basis), length(basis))
@@ -67,14 +74,14 @@ end
 
 
 
-function sparse_hamiltonian(basis::AbstractSzbasis, Ts::AbstractVector{Float64}, U::Float64, Vexponent::Int64, Vscale::Int64; boundary::BdryCond=PBC)
+function sparse_hamiltonian(basis::AbstractSzbasis, Ts::AbstractVector{Float64}, U::Float64, Vexponent::Int64, Vscale::Float64; boundary::BdryCond=PBC)
     sparse_hamiltonian(basis, Ts, zeros(basis.K), U, Vexponent, Vscale, boundary=boundary)
 end
 
-function sparse_hamiltonian(basis::AbstractSzbasis, T::Float64, mus::AbstractVector{Float64}, U::Float64, Vexponent::Int64, Vscale::Int64; boundary::BdryCond=PBC)
+function sparse_hamiltonian(basis::AbstractSzbasis, T::Float64, mus::AbstractVector{Float64}, U::Float64, Vexponent::Int64, Vscale::Float64; boundary::BdryCond=PBC)
     sparse_hamiltonian(basis, fill(T, num_links(basis, boundary)), mus, U, Vexponent, Vscale, boundary=boundary)
 end
 
-function sparse_hamiltonian(basis::AbstractSzbasis, T::Float64, U::Float64, Vexponent::Int64, Vscale::Int64; boundary::BdryCond=PBC)
+function sparse_hamiltonian(basis::AbstractSzbasis, T::Float64, U::Float64, Vexponent::Int64, Vscale::Float64; boundary::BdryCond=PBC)
     sparse_hamiltonian(basis, fill(T, num_links(basis, boundary)), U, Vexponent, Vscale, boundary=boundary)
 end
