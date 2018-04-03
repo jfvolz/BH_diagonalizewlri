@@ -86,7 +86,7 @@ add_arg_group(s, "BH parameters")
         arg_type = Float64
         default = 1.0
 end
-add_arg_group(s, "BH parameters")
+add_arg_group(s, "LR parameters")
 @add_arg_table s begin
     "--V-min"
         metavar = "V"
@@ -98,6 +98,19 @@ add_arg_group(s, "BH parameters")
         help = "maximum V"
         arg_type = Float64
         default = 10.0
+end
+add_arg_group(s, "Time parameters")
+@add_arg_table s begin
+    "--T-min"
+        metavar = "T"
+        help = "minimum T"
+        arg_type = Float64
+        default = 0.0
+    "--T-max"
+        metavar = "T"
+        help = "maximum T"
+        arg_type = Float64
+        default = 1.0
 end
 add_arg_group(s, "entanglement entropy")
 @add_arg_table s begin
@@ -138,9 +151,10 @@ if c[:u_log] && c[:u_num] === nothing
     exit(1)
 end
 V_range = c[:V_min]:0.1:c[:V_max]
+T_range = c[:T_min]:0.01:c[:T_max]
 if c[:u_step] === nothing
     if c[:u_num] === nothing
-        U_range = 0.0:1.0:10.0
+        U_range = c[:u_min]:1.0:c[:u_max]
     else
         if c[:u_log]
             U_range = logspace(c[:u_min], c[:u_max], c[:u_num])
@@ -179,30 +193,55 @@ open(output, "w") do f
     else
         write(f, "# M=$(M), N=$(N), V=V0/r^$(Vexponent), max=$(site_max), $(boundary)\n")
     end
-    write(f, "# U/t V E0/t S2(n=$(Asize)) S2(l=$(Asize)) Eop(l=$(Asize))\n")
+    write(f, "# U/t V T E0/t S2(n=$(Asize)) S2(l=$(Asize)) Eop(l=$(Asize))\n")
 
     @showprogress for (i, U) in enumerate(U_range)
         @showprogress for (j, V) in enumerate(V_range)
             # Create the Hamiltonian
             H = sparse_hamiltonian(basis, c[:t], U, Vexponent, V, boundary=boundary)
+            # Create the full hamiltonian matrix
+            Hfull = Array(H)
 
             # Perform the Lanczos diagonalization to obtain the lowest eigenvector
             d = eigs(H, nev=1, which=:SR, v0=v0)
+            # get full Diagonalization
+            dTimeEvolve = eig(Hfull)
+            # ground state
             E0 = d[1][1]
-            wf = vec(d[2])
-            d[3] == 1 || warn("Diagonalization did not converge")
-            niters[i] = d[4]
-            nmults[i] = d[5]
+            if M === N
+                # add start state that is mott insulating state
+                StartState = fill(1, M)
+                # find that state in basis
+                BasisIndex = find(x -> x == StartState, basis)
+                # create a selector vector
+                WhichState = fill(0, length(basis))
+                WhichState[BasisIndex] = 1
+            end
+            # time evolve using eigenvectors.
+            StartStateInEigenbasis = dTimeEvolve[2]' * WhichState
+            @showprogress for (l, T) in enumerate(T_range)
+              TimeEvolvedInEigenbasis = similar(StartStateInEigenbasis)
+              TimeEvolvedInEigenbasis = complex(TimeEvolvedInEigenbasis)
+              for k = 1:size(StartStateInEigenbasis, 1)
+                  ComplexMultiplier = exp(-im * dTimeEvolve[1][k] * T)
+                  setindex!(TimeEvolvedInEigenbasis, StartStateInEigenbasis[k] * ComplexMultiplier, [k])
+              end
+              TimeEvolved = dTimeEvolve[2] * TimeEvolvedInEigenbasis
+              wf = vec(TimeEvolved)
+              d[3] == 1 || warn("Diagonalization did not converge")
+              niters[i] = d[4]
+              nmults[i] = d[5]
 
-            # Use the current ground state for the next diagonalization
-            v0 .= wf
+              # Use the current ground state for the next diagonalization
+              # v0 .= wf
 
-            # Calculate the second Renyi entropy
-            s2_particle = particle_entropy(basis, Asize, wf)
-            s2_spatial, s2_operational = spatial_entropy(basis, Asize, wf)
-
-            write(f, "$(U/c[:t]) $(V) $(E0/c[:t]) $(s2_particle) $(s2_spatial) $(s2_operational)\n")
+              # Calculate the second Renyi entropy
+              s2_particle = particle_entropy(basis, Asize, wf)
+              #plug the time evolved state into function below as wf
+              s2_spatial, s2_operational = spatial_entropy(basis, Asize, wf)
+            write(f, "$(U/c[:t]) $(V) $(T) $(E0/c[:t]) $(s2_particle) $(s2_spatial) $(s2_operational)\n")
             flush(f)
+            end
         end
     end
 end
