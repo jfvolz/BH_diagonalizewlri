@@ -239,7 +239,8 @@ open(output, "w") do f
               s2_particle = particle_entropy(basis, Asize, wf)
               #plug the time evolved state into function below as wf
               s2_spatial, s2_operational = spatial_entropy(basis, Asize, wf)
-            write(f, "$(U/c[:t]) $(V) $(T) $(E0/c[:t]) $(s2_particle) $(s2_spatial) $(s2_operational)\n")
+              expectation, squareExpectation, deltaNsquared = spatial_expectation(basis, wf)
+            write(f, "$(U/c[:t]) $(V) $(T) $(E0/c[:t]) $(s2_particle) $(s2_spatial) $(s2_operational) $(expectation) $(squareExpectation) $(deltaNsquared)\n")
             flush(f)
             end
         end
