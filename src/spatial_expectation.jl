@@ -17,5 +17,5 @@ function spatial_expectation{T<:Number}(basis::AbstractSzbasis, wf::Vector{T})
     squareExpectations[i] += nSquareSum
     deltaNsquared[i] += nSquareSum - nSum^2
   end
-  expectations, squareExpectations, deltaNsquared
+  expectations[1], squareExpectations[1], deltaNsquared[1]
 end
